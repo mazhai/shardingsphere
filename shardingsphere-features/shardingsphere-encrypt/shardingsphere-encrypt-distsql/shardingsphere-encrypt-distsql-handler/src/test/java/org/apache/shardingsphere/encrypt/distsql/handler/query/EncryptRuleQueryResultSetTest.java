@@ -23,14 +23,12 @@ import org.apache.shardingsphere.encrypt.api.config.rule.EncryptTableRuleConfigu
 import org.apache.shardingsphere.encrypt.distsql.parser.statement.ShowEncryptRulesStatement;
 import org.apache.shardingsphere.infra.config.RuleConfiguration;
 import org.apache.shardingsphere.infra.config.algorithm.ShardingSphereAlgorithmConfiguration;
-import org.apache.shardingsphere.infra.distsql.query.RQLResultSet;
+import org.apache.shardingsphere.infra.distsql.query.DistSQLResultSet;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.junit.Test;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -46,7 +44,7 @@ public final class EncryptRuleQueryResultSetTest {
     public void assertGetRowData() {
         ShardingSphereMetaData metaData = mock(ShardingSphereMetaData.class, RETURNS_DEEP_STUBS);
         when(metaData.getRuleMetaData().getConfigurations()).thenReturn(Collections.singleton(getRuleConfiguration()));
-        RQLResultSet resultSet = new EncryptRuleQueryResultSet();
+        DistSQLResultSet resultSet = new EncryptRuleQueryResultSet();
         resultSet.init(metaData, mock(ShowEncryptRulesStatement.class));
         Collection<Object> actual = resultSet.getRowData();
         assertThat(actual.size(), is(6));
@@ -61,8 +59,6 @@ public final class EncryptRuleQueryResultSetTest {
         EncryptColumnRuleConfiguration encryptColumnRuleConfig = new EncryptColumnRuleConfiguration("user_id", "user_cipher", null, "user_plain", "test");
         EncryptTableRuleConfiguration encryptTableRuleConfig = new EncryptTableRuleConfiguration("t_encrypt", Collections.singleton(encryptColumnRuleConfig));
         ShardingSphereAlgorithmConfiguration shardingSphereAlgorithmConfig = new ShardingSphereAlgorithmConfiguration("md5", new Properties());
-        Map<String, ShardingSphereAlgorithmConfiguration> encryptors = new HashMap<>();
-        encryptors.put("test", shardingSphereAlgorithmConfig);
-        return new EncryptRuleConfiguration(Collections.singleton(encryptTableRuleConfig), encryptors);
+        return new EncryptRuleConfiguration(Collections.singleton(encryptTableRuleConfig), Collections.singletonMap("test", shardingSphereAlgorithmConfig));
     }
 }

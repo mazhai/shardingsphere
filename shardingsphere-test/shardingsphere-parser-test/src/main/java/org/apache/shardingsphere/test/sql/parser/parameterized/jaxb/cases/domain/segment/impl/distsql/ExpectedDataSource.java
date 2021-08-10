@@ -22,6 +22,7 @@ import lombok.Setter;
 import org.apache.shardingsphere.test.sql.parser.parameterized.jaxb.cases.domain.segment.AbstractExpectedIdentifierSQLSegment;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Expected data source.
@@ -29,6 +30,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 @Getter
 @Setter
 public final class ExpectedDataSource extends AbstractExpectedIdentifierSQLSegment {
+    
+    @XmlAttribute
+    private String url;
     
     @XmlAttribute(name = "host-name")
     private String hostName;
@@ -44,4 +48,7 @@ public final class ExpectedDataSource extends AbstractExpectedIdentifierSQLSegme
     
     @XmlAttribute
     private String password;
+    
+    @XmlElement(name = "properties")
+    private ExpectedProperties props;
 }

@@ -23,100 +23,19 @@
 ######################################################################################################
 #
 schemaName: sharding_db
-
 dataSources:
   ds_0:
-    url: jdbc:mysql://127.0.0.1:3306/khfw_only_xianzh_new?serverTimezone=UTC&useSSL=false
-    username: root
-    password: 123456
+    url: jdbc:mysql://rm-8vbzj4qq6lbk4a0u8uo.mysql.zhangbei.rds.aliyuncs.com/khfw_only_xianzh_new?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&useSSL=false&autoReconnect=true&failOverReadOnly=false
+    username: superuser
+    password: OiRt0BxzNjMDFC9p
+    #    url: jdbc:mysql://127.0.0.1:3306/khfw_only_xianzh_new?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&useSSL=false
+    #    username: sharding
+    #    password: sharding
     connectionTimeoutMilliseconds: 30000
     idleTimeoutMilliseconds: 60000
     maxLifetimeMilliseconds: 1800000
     maxPoolSize: 50
     minPoolSize: 1
-    maintenanceIntervalMilliseconds: 30000
-#  ds_1:
-#    url: jdbc:postgresql://127.0.0.1:5432/demo_ds_1?serverTimezone=UTC&useSSL=false
-#    username: postgres
-#    password: postgres
-#    connectionTimeoutMilliseconds: 30000
-#    idleTimeoutMilliseconds: 60000
-#    maxLifetimeMilliseconds: 1800000
-#    maxPoolSize: 50
-#    minPoolSize: 1
-#    maintenanceIntervalMilliseconds: 30000
-#
-# rules:
-# - !SHARDING
-#   tables:
-#     service_attendance_detail:  # 指定service_attendance_detail表的数据分布情况，配置数据节点
-#       actualDataNodes: permission.service_attendance_detail_0$->{1..9},permission.service_attendance_detail_1$->{0..2}
-#       tableStrategy:
-#         inline:   # 指定t_order表的分片策略，分片策略包括分片键和分片算法
-#           shardingColumn: course_date
-#           algorithmExpression: service_attendance_detail_$->{course_date[5..6]} #截取该字段的5-6位决定落在哪张表
-#       keyGenerateStrategy:
-#         column: id
-#         keyGeneratorName: snowflake
-#  bindingTables:
-#    - t_order,t_order_item
-#  defaultDatabaseStrategy:
-#    standard:
-#      shardingColumn: user_id
-#      shardingAlgorithmName: database_inline
-#  defaultTableStrategy:
-#    none:
-#
-#  shardingAlgorithms:
-#    database_inline:
-#      type: INLINE
-#      props:
-#        algorithm-expression: ds_${user_id % 2}
-#    t_order_inline:
-#      type: INLINE
-#      props:
-#        algorithm-expression: t_order_${order_id % 2}
-#    t_order_item_inline:
-#      type: INLINE
-#      props:
-#        algorithm-expression: t_order_item_${order_id % 2}
-#
-#  keyGenerators:
-#    snowflake:
-#      type: SNOWFLAKE
-#      props:
-#        worker-id: 123
-
-######################################################################################################
-#
-# If you want to connect to MySQL, you should manually copy MySQL driver to lib directory.
-#
-######################################################################################################
-
-#schemaName: sharding_db
-#
-#dataSources:
-#  ds_0:
-#    url: jdbc:mysql://127.0.0.1:3306/demo_ds_0?serverTimezone=UTC&useSSL=false
-#    username: root
-#    password:
-#    connectionTimeoutMilliseconds: 30000
-#    idleTimeoutMilliseconds: 60000
-#    maxLifetimeMilliseconds: 1800000
-#    maxPoolSize: 50
-#    minPoolSize: 1
-#    maintenanceIntervalMilliseconds: 30000
-#  ds_1:
-#    url: jdbc:mysql://127.0.0.1:3306/demo_ds_1?serverTimezone=UTC&useSSL=false
-#    username: root
-#    password:
-#    connectionTimeoutMilliseconds: 30000
-#    idleTimeoutMilliseconds: 60000
-#    maxLifetimeMilliseconds: 1800000
-#    maxPoolSize: 50
-#    minPoolSize: 1
-#    maintenanceIntervalMilliseconds: 30000
-#
 rules:
   - !SHARDING
     tables:
