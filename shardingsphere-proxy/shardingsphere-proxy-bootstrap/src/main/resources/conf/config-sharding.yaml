@@ -44,9 +44,20 @@ rules:
         tableStrategy:
           standard:
             shardingColumn: course_date
-            shardingAlgorithmName: service_attendance_detail_2021_$->{course_date[5..6]} #截取该字段的5-6位决定落在哪张表
+            shardingAlgorithmName: t_order_inline #截取该字段的5-6位决定落在哪张表
         keyGenerateStrategy:
           column: id
           keyGeneratorName: snowflake
     bindingTables:
       - service_attendance_detail
+    shardingAlgorithms:
+      t_order_inline:
+        type: INTERVAL
+        props:
+          datetime-pattern: yyyy-MM-dd HH:mm:ss
+          datetime-lower: "2021-01-01 00:00:00"
+          sharding-suffix-pattern: _yyyy_MM # 表名后缀格式，一定要跟创建的表名后缀一致。
+          datetime-upper: "2021-12-31 23:59:59"
+          datetime-interval-unit: MONTHS # 按照月份分表
+#          datetime-interval-amount: 12
+#          allow-range-query-with-inline-sharding: true
