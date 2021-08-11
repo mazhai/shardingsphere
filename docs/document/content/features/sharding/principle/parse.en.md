@@ -104,8 +104,8 @@ SQLStatement sqlStatement = sqlVisitorEngine.visit(tree);
  * useCache type:boolean whether use cache
  * @return String 
  */
-ParseTree tree = new SQLParserEngine(databaseType).parse(sql, useCache);
-SQLVisitorEngine sqlVisitorEngine = new SQLVisitorEngine(databaseType, "FORMAT", new Properties());
+ParseTree tree = new SQLParserEngine(databaseType).parse(sql, useCache); 
+SQLVisitorEngine sqlVisitorEngine = new SQLVisitorEngine(databaseType, "FORMAT");
 String formatedSql = sqlVisitorEngine.visit(tree);
 ```
 

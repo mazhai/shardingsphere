@@ -40,17 +40,13 @@ import org.apache.shardingsphere.sql.parser.sql.common.statement.dml.DMLStatemen
 import org.apache.shardingsphere.sql.parser.sql.common.statement.dml.SelectStatement;
 import org.apache.shardingsphere.sql.parser.sql.common.util.SafeNumberOperationUtil;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Sharding dml statement validator.
  */
 public abstract class ShardingDMLStatementValidator<T extends SQLStatement> implements ShardingStatementValidator<T> {
-    
+
     /**
      * Validate sharding multiple table.
      *
@@ -64,7 +60,7 @@ public abstract class ShardingDMLStatementValidator<T extends SQLStatement> impl
             throw new ShardingSphereException("Cannot support Multiple-Table for '%s'.", tableNames);
         }
     }
-    
+
     private boolean isAllValidTables(final ShardingRule shardingRule, final Collection<String> tableNames) {
         Collection<String> allTableNames = new LinkedList<>(tableNames);
         allTableNames.removeAll(shardingRule.getShardingLogicTableNames(tableNames));
@@ -72,7 +68,7 @@ public abstract class ShardingDMLStatementValidator<T extends SQLStatement> impl
         // TODO validate other single table scenario
         return allTableNames.isEmpty();
     }
-    
+
     protected boolean checkSubqueryShardingValues(final ShardingRule shardingRule, final SQLStatementContext sqlStatementContext,
         final List<Object> parameters, final ShardingSphereSchema schema) {
         for (String each : sqlStatementContext.getTablesContext().getTableNames()) {
@@ -85,12 +81,12 @@ public abstract class ShardingDMLStatementValidator<T extends SQLStatement> impl
         ShardingConditions shardingConditions = createShardingConditions(sqlStatementContext, parameters, schema, shardingRule);
         return shardingConditions.getConditions().size() > 1 && !isSameShardingCondition(shardingRule, shardingConditions);
     }
-    
+
     private boolean isRoutingByHint(final ShardingRule shardingRule, final TableRule tableRule) {
         return shardingRule.getDatabaseShardingStrategyConfiguration(tableRule) instanceof HintShardingStrategyConfiguration
             && shardingRule.getTableShardingStrategyConfiguration(tableRule) instanceof HintShardingStrategyConfiguration;
     }
-    
+
     private boolean isSameShardingCondition(final ShardingRule shardingRule, final ShardingConditions shardingConditions) {
         ShardingCondition example = shardingConditions.getConditions().remove(shardingConditions.getConditions().size() - 1);
         for (ShardingCondition each : shardingConditions.getConditions()) {
@@ -100,7 +96,7 @@ public abstract class ShardingDMLStatementValidator<T extends SQLStatement> impl
         }
         return true;
     }
-    
+
     private boolean isSameShardingCondition(final ShardingRule shardingRule, final ShardingCondition shardingCondition1, final ShardingCondition shardingCondition2) {
         if (shardingCondition1.getValues().size() != shardingCondition2.getValues().size()) {
             return false;
@@ -114,21 +110,21 @@ public abstract class ShardingDMLStatementValidator<T extends SQLStatement> impl
         }
         return true;
     }
-    
+
     private boolean isSameShardingConditionValue(final ShardingRule shardingRule, final ShardingConditionValue shardingConditionValue1, final ShardingConditionValue shardingConditionValue2) {
         return isSameLogicTable(shardingRule, shardingConditionValue1, shardingConditionValue2) && shardingConditionValue1.getColumnName().equals(shardingConditionValue2.getColumnName())
             && isSameValue(shardingConditionValue1, shardingConditionValue2);
     }
-    
+
     private boolean isSameLogicTable(final ShardingRule shardingRule, final ShardingConditionValue shardingValue1, final ShardingConditionValue shardingValue2) {
         return shardingValue1.getTableName().equals(shardingValue2.getTableName()) || isBindingTable(shardingRule, shardingValue1, shardingValue2);
     }
-    
+
     private boolean isBindingTable(final ShardingRule shardingRule, final ShardingConditionValue shardingValue1, final ShardingConditionValue shardingValue2) {
         Optional<BindingTableRule> bindingRule = shardingRule.findBindingTableRule(shardingValue1.getTableName());
         return bindingRule.isPresent() && bindingRule.get().hasLogicTable(shardingValue2.getTableName());
     }
-    
+
     @SuppressWarnings("unchecked")
     private boolean isSameValue(final ShardingConditionValue shardingConditionValue1, final ShardingConditionValue shardingConditionValue2) {
         if (shardingConditionValue1 instanceof ListShardingConditionValue && shardingConditionValue2 instanceof ListShardingConditionValue) {
@@ -140,7 +136,7 @@ public abstract class ShardingDMLStatementValidator<T extends SQLStatement> impl
         }
         return false;
     }
-    
+
     private ShardingConditions createShardingConditions(final SQLStatementContext<SelectStatement> sqlStatementContext,
         final List<Object> parameters, final ShardingSphereSchema schema, final ShardingRule rule) {
         List<ShardingCondition> shardingConditions;
@@ -152,7 +148,7 @@ public abstract class ShardingDMLStatementValidator<T extends SQLStatement> impl
         }
         return new ShardingConditions(shardingConditions);
     }
-    
+
     protected boolean isNeedMergeShardingValues(final SQLStatementContext<?> sqlStatementContext, final ShardingRule rule) {
         boolean selectContainsSubquery = sqlStatementContext instanceof SelectStatementContext && ((SelectStatementContext) sqlStatementContext).isContainsSubquery();
         boolean insertSelectContainsSubquery = sqlStatementContext instanceof InsertStatementContext && null != ((InsertStatementContext) sqlStatementContext).getInsertSelectContext()

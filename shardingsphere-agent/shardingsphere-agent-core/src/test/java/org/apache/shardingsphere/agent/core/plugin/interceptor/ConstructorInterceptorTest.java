@@ -75,10 +75,11 @@ public final class ConstructorInterceptorTest {
                 .installOnByteBuddyAgent();
     }
     
-    @SuppressWarnings("ConstantConditions")
     @Test
+    @SuppressWarnings("all")
     public void assertNoArgConstructor() {
-        assertTrue(new ConstructorMaterial() instanceof AdviceTargetObject);
+        Object material = new ConstructorMaterial();
+        assertTrue(material instanceof AdviceTargetObject);
     }
     
     @Test

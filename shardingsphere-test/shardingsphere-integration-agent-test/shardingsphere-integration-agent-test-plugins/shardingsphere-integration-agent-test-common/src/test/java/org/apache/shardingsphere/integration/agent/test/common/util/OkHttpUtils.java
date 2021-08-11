@@ -56,7 +56,7 @@ public final class OkHttpUtils {
     }
     
     /**
-     * Get response json and transform to class bean.
+     * Get request.
      *
      * @param <T> type parameter
      * @param url url
@@ -65,20 +65,10 @@ public final class OkHttpUtils {
      * @throws IOException the IOException
      */
     public <T> T get(final String url, final Class<T> clazz) throws IOException {
-        return GSON.fromJson(get(url), clazz);
-    }
-
-    /**
-     * Get response json.
-     *
-     * @param url url
-     * @return response json
-     * @throws IOException the IOException
-     */
-    public String get(final String url) throws IOException {
         Request request = new Request.Builder().url(url).build();
         Response response = client.newCall(request).execute();
         assertNotNull(response.body());
-        return response.body().string();
+        String result = response.body().string();
+        return GSON.fromJson(result, clazz);
     }
 }

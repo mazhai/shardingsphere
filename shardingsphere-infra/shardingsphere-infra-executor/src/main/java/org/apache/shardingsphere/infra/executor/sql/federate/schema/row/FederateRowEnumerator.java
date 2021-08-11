@@ -70,7 +70,11 @@ public final class FederateRowEnumerator implements Enumerator<Object[]> {
             return false;
         }
         currentResultSet = iterator.next();
-        return moveNext0();
+        if (currentResultSet.next()) {
+            setCurrentRow();
+            return true;
+        }
+        return false;
     }
     
     private void setCurrentRow() throws SQLException {

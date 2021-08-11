@@ -17,10 +17,10 @@
 
 package org.apache.shardingsphere.scaling.mysql.binlog;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.shardingsphere.db.protocol.mysql.packet.binlog.row.MySQLBinlogTableMapEventPacket;
 import org.apache.shardingsphere.db.protocol.mysql.packet.binlog.row.column.MySQLBinlogColumnDef;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,8 +29,8 @@ import java.util.Map;
 /**
  * Binlog context.
  */
-@Getter
 @Setter
+@Getter
 public final class BinlogContext {
     
     private String fileName;

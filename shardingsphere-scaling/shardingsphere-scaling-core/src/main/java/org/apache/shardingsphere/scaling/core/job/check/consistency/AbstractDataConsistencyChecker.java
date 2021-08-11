@@ -49,7 +49,7 @@ public abstract class AbstractDataConsistencyChecker implements DataConsistencyC
     private final JobContext jobContext;
     
     @Override
-    public final Map<String, DataConsistencyCheckResult> countCheck() {
+    public Map<String, DataConsistencyCheckResult> countCheck() {
         return jobContext.getTaskConfigs()
                 .stream().flatMap(each -> each.getDumperConfig().getTableNameMap().values().stream()).collect(Collectors.toSet())
                 .stream().collect(Collectors.toMap(Function.identity(), this::countCheck, (oldValue, currentValue) -> oldValue, LinkedHashMap::new));
@@ -68,7 +68,7 @@ public abstract class AbstractDataConsistencyChecker implements DataConsistencyC
     
     private long count(final DataSource dataSource, final String table) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(getSQLBuilder().buildCountSQL(table));
+             PreparedStatement preparedStatement = connection.prepareStatement(getSqlBuilder().buildCountSQL(table));
              ResultSet resultSet = preparedStatement.executeQuery()) {
             resultSet.next();
             return resultSet.getLong(1);
@@ -77,13 +77,13 @@ public abstract class AbstractDataConsistencyChecker implements DataConsistencyC
         }
     }
     
-    protected final DataSourceWrapper getSourceDataSource() {
+    protected DataSourceWrapper getSourceDataSource() {
         return dataSourceFactory.newInstance(jobContext.getJobConfig().getRuleConfig().getSource().unwrap());
     }
     
-    protected final DataSourceWrapper getTargetDataSource() {
+    protected DataSourceWrapper getTargetDataSource() {
         return dataSourceFactory.newInstance(jobContext.getJobConfig().getRuleConfig().getTarget().unwrap());
     }
     
-    protected abstract ScalingSQLBuilder getSQLBuilder();
+    protected abstract ScalingSQLBuilder getSqlBuilder();
 }

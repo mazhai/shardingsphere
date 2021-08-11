@@ -19,7 +19,6 @@ package org.apache.shardingsphere.sharding.algorithm.config;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.shardingsphere.infra.config.function.DistributedRuleConfiguration;
 import org.apache.shardingsphere.infra.config.scope.SchemaRuleConfiguration;
 import org.apache.shardingsphere.sharding.api.config.rule.ShardingAutoTableRuleConfiguration;
 import org.apache.shardingsphere.sharding.api.config.rule.ShardingTableRuleConfiguration;
@@ -38,7 +37,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
-public final class AlgorithmProvidedShardingRuleConfiguration implements SchemaRuleConfiguration, DistributedRuleConfiguration {
+public final class AlgorithmProvidedShardingRuleConfiguration implements SchemaRuleConfiguration {
     
     private Collection<ShardingTableRuleConfiguration> tables = new LinkedList<>();
     
@@ -53,8 +52,6 @@ public final class AlgorithmProvidedShardingRuleConfiguration implements SchemaR
     private ShardingStrategyConfiguration defaultTableShardingStrategy;
     
     private KeyGenerateStrategyConfiguration defaultKeyGenerateStrategy;
-
-    private String defaultShardingColumn;
     
     private Map<String, ShardingAlgorithm> shardingAlgorithms = new LinkedHashMap<>();
     

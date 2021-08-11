@@ -20,22 +20,21 @@
 package org.apache.shardingsphere.sql.parser.sql.common.segment.dml.union;
 
 import lombok.Getter;
-import org.apache.shardingsphere.sql.parser.sql.common.constant.UnionType;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.SQLSegment;
 import org.apache.shardingsphere.sql.parser.sql.common.statement.dml.SelectStatement;
 
 @Getter
 public class UnionSegment implements SQLSegment {
-    
+
     private final int startIndex;
-    
+
     private final int stopIndex;
-    
-    private final UnionType unionType;
-    
+
+    private final String unionType;
+
     private final SelectStatement selectStatement;
-    
-    public UnionSegment(final UnionType unionType, final SelectStatement selectStatement, final int startIndex, final int stopIndex) {
+
+    public UnionSegment(final String unionType, final SelectStatement selectStatement, final int startIndex, final int stopIndex) {
         this.unionType = unionType;
         this.selectStatement = selectStatement;
         this.startIndex = startIndex;

@@ -20,11 +20,10 @@ package org.apache.shardingsphere.proxy.fixture;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.infra.config.RuleConfiguration;
-import org.apache.shardingsphere.infra.config.function.EnhancedRuleConfiguration;
 
 @RequiredArgsConstructor
 @Getter
-public final class RuleConfigurationFixture implements RuleConfiguration, EnhancedRuleConfiguration {
+public final class RuleConfigurationFixture implements RuleConfiguration {
     
     private final String name;
 }

@@ -20,9 +20,7 @@ package org.apache.shardingsphere.spring.namespace.governance;
 import org.apache.shardingsphere.driver.governance.internal.datasource.GovernanceShardingSphereDataSource;
 import org.apache.shardingsphere.infra.config.properties.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.context.metadata.MetaDataContexts;
-import org.apache.shardingsphere.infra.database.DefaultSchema;
 import org.apache.shardingsphere.infra.datanode.DataNode;
-import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
 import org.apache.shardingsphere.sharding.rule.BindingTableRule;
 import org.apache.shardingsphere.sharding.rule.ShardingRule;
 import org.apache.shardingsphere.sharding.rule.TableRule;
@@ -156,8 +154,7 @@ public class GovernanceShardingNamespaceTest extends AbstractJUnit4SpringContext
     public void assertDefaultActualDataNodes() {
         GovernanceShardingSphereDataSource multiTableRulesDataSource = applicationContext.getBean("multiTableRulesDataSourceGovernance", GovernanceShardingSphereDataSource.class);
         MetaDataContexts metaDataContexts = (MetaDataContexts) FieldValueUtil.getFieldValue(multiTableRulesDataSource, "metaDataContexts");
-        Iterator<ShardingSphereRule> iterator = metaDataContexts.getMetaData(DefaultSchema.LOGIC_NAME).getRuleMetaData().getRules().iterator();
-        ShardingRule shardingRule = (ShardingRule) iterator.next();
+        ShardingRule shardingRule = (ShardingRule) metaDataContexts.getDefaultMetaData().getRuleMetaData().getRules().iterator().next();
         assertThat(shardingRule.getTableRules().size(), is(2));
         Iterator<TableRule> tableRules = shardingRule.getTableRules().iterator();
         TableRule orderRule = tableRules.next();
@@ -173,13 +170,12 @@ public class GovernanceShardingNamespaceTest extends AbstractJUnit4SpringContext
     private Map<String, DataSource> getDataSourceMap(final String dataSourceName) {
         GovernanceShardingSphereDataSource shardingSphereDataSource = applicationContext.getBean(dataSourceName, GovernanceShardingSphereDataSource.class);
         MetaDataContexts metaDataContexts = (MetaDataContexts) FieldValueUtil.getFieldValue(shardingSphereDataSource, "metaDataContexts");
-        return metaDataContexts.getMetaData(DefaultSchema.LOGIC_NAME).getResource().getDataSources();
+        return metaDataContexts.getDefaultMetaData().getResource().getDataSources();
     }
     
     private ShardingRule getShardingRule(final String dataSourceName) {
         GovernanceShardingSphereDataSource shardingSphereDataSource = applicationContext.getBean(dataSourceName, GovernanceShardingSphereDataSource.class);
         MetaDataContexts metaDataContexts = (MetaDataContexts) FieldValueUtil.getFieldValue(shardingSphereDataSource, "metaDataContexts");
-        Iterator<ShardingSphereRule> iterator = metaDataContexts.getMetaData(DefaultSchema.LOGIC_NAME).getRuleMetaData().getRules().iterator();
-        return (ShardingRule) iterator.next();
+        return (ShardingRule) metaDataContexts.getDefaultMetaData().getRuleMetaData().getRules().iterator().next();
     }
 }

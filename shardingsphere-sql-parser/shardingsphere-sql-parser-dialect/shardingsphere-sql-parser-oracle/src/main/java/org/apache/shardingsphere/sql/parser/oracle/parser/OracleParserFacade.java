@@ -19,12 +19,17 @@ package org.apache.shardingsphere.sql.parser.oracle.parser;
 
 import org.apache.shardingsphere.sql.parser.api.parser.SQLLexer;
 import org.apache.shardingsphere.sql.parser.api.parser.SQLParser;
-import org.apache.shardingsphere.sql.parser.spi.DatabaseTypedSQLParserFacade;
+import org.apache.shardingsphere.sql.parser.spi.SQLParserFacade;
 
 /**
  * SQL parser facade for Oracle.
  */
-public final class OracleParserFacade implements DatabaseTypedSQLParserFacade {
+public final class OracleParserFacade implements SQLParserFacade {
+    
+    @Override
+    public String getDatabaseType() {
+        return "Oracle";
+    }
     
     @Override
     public Class<? extends SQLLexer> getLexerClass() {
@@ -34,10 +39,5 @@ public final class OracleParserFacade implements DatabaseTypedSQLParserFacade {
     @Override
     public Class<? extends SQLParser> getParserClass() {
         return OracleParser.class;
-    }
-    
-    @Override
-    public String getDatabaseType() {
-        return "Oracle";
     }
 }

@@ -19,7 +19,7 @@ package org.apache.shardingsphere.sharding.swapper;
 
 import org.apache.shardingsphere.infra.config.properties.ConfigurationPropertyKey;
 import org.apache.shardingsphere.sharding.yaml.config.YamlShardingRuleConfiguration;
-import org.apache.shardingsphere.infra.yaml.config.pojo.YamlRootRuleConfigurations;
+import org.apache.shardingsphere.infra.yaml.config.YamlRootRuleConfigurations;
 import org.apache.shardingsphere.infra.yaml.engine.YamlEngine;
 import org.junit.Test;
 
@@ -80,7 +80,6 @@ public final class YamlRootRuleConfigurationsForYamlShardingRuleConfigurationTes
         assertBindingTable(shardingRuleConfig.get());
         assertBroadcastTable(shardingRuleConfig.get());
         assertProps(actual);
-        assertThat(shardingRuleConfig.get().getDefaultShardingColumn(), is("order_id"));
     }
     
     private void assertTUser(final YamlShardingRuleConfiguration actual) {
@@ -124,6 +123,6 @@ public final class YamlRootRuleConfigurationsForYamlShardingRuleConfigurationTes
     
     private void assertProps(final YamlRootRuleConfigurations actual) {
         assertThat(actual.getProps().size(), is(1));
-        assertTrue((boolean) actual.getProps().get(ConfigurationPropertyKey.SQL_SHOW.getKey()));
+        assertThat(actual.getProps().get(ConfigurationPropertyKey.SQL_SHOW.getKey()), is(true));
     }
 }

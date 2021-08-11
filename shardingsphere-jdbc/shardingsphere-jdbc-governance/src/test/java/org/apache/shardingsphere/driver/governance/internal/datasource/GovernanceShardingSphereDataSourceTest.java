@@ -50,13 +50,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public final class GovernanceShardingSphereDataSourceTest {
     
@@ -73,27 +71,24 @@ public final class GovernanceShardingSphereDataSourceTest {
     }
     
     private static GovernanceConfiguration getGovernanceConfiguration() {
-        return new GovernanceConfiguration(getRegistryCenterConfiguration(), true);
+        return new GovernanceConfiguration("test_name", getRegistryCenterConfiguration(), true);
     }
     
     private static RegistryCenterConfiguration getRegistryCenterConfiguration() {
         Properties properties = new Properties();
         properties.setProperty("overwrite", "true");
-        return new RegistryCenterConfiguration("GOV_TEST", "test_name", "localhost:3181", properties);
+        return new RegistryCenterConfiguration("GOV_TEST", "localhost:3181", properties);
     }
     
     @Test
     public void assertInitializeGovernanceShardingSphereDataSource() throws SQLException {
-        assertThat(new GovernanceShardingSphereDataSource(DefaultSchema.LOGIC_NAME, getGovernanceConfiguration()).getConnection(), instanceOf(Connection.class));
+        assertThat(new GovernanceShardingSphereDataSource(getGovernanceConfiguration()).getConnection(), instanceOf(Connection.class));
     }
     
     @Test
     public void assertRenewRules() throws SQLException {
         metaDataContexts.renew(new RuleConfigurationsChangedEvent(DefaultSchema.LOGIC_NAME, Arrays.asList(getShardingRuleConfiguration(), getReadwriteSplittingRuleConfiguration())));
-        Optional<ShardingRule> rule = metaDataContexts.getMetaData(DefaultSchema.LOGIC_NAME).getRuleMetaData().getRules().stream()
-                .filter(each -> each instanceof ShardingRule).map(each -> (ShardingRule) each).findFirst();
-        assertTrue(rule.isPresent());
-        assertThat(rule.get().getTableRules().size(), is(1));
+        assertThat(((ShardingRule) metaDataContexts.getDefaultMetaData().getRuleMetaData().getRules().iterator().next()).getTableRules().size(), is(1));
     }
     
     private ShardingRuleConfiguration getShardingRuleConfiguration() {
@@ -112,7 +107,7 @@ public final class GovernanceShardingSphereDataSourceTest {
     @Test
     public void assertRenewDataSource() throws SQLException {
         metaDataContexts.renew(new DataSourceChangedEvent(DefaultSchema.LOGIC_NAME, getDataSourceConfigurations()));
-        assertThat(metaDataContexts.getMetaData(DefaultSchema.LOGIC_NAME).getResource().getDataSources().size(), is(3));
+        assertThat(metaDataContexts.getDefaultMetaData().getResource().getDataSources().size(), is(3));
     }
     
     private Map<String, DataSourceConfiguration> getDataSourceConfigurations() {
@@ -130,13 +125,13 @@ public final class GovernanceShardingSphereDataSourceTest {
     
     @Test
     public void assertRenewProperties() {
-        metaDataContexts.renew(createPropertiesChangedEvent());
-        assertThat(metaDataContexts.getProps().getProps().getProperty(ConfigurationPropertyKey.SQL_SHOW.getKey()), is(Boolean.TRUE.toString()));
+        metaDataContexts.renew(getPropertiesChangedEvent());
+        assertThat(metaDataContexts.getProps().getProps().getProperty(ConfigurationPropertyKey.SQL_SHOW.getKey()), is("true"));
     }
     
-    private PropertiesChangedEvent createPropertiesChangedEvent() {
+    private PropertiesChangedEvent getPropertiesChangedEvent() {
         Properties props = new Properties();
-        props.setProperty(ConfigurationPropertyKey.SQL_SHOW.getKey(), Boolean.TRUE.toString());
+        props.setProperty(ConfigurationPropertyKey.SQL_SHOW.getKey(), "true");
         return new PropertiesChangedEvent(props);
     }
     

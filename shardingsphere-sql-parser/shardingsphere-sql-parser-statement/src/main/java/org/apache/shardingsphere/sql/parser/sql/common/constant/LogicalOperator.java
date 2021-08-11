@@ -17,34 +17,23 @@
 
 package org.apache.shardingsphere.sql.parser.sql.common.constant;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.TreeSet;
 
 /**
  * Logical operator.
  */
 public enum LogicalOperator {
     
-    AND, OR;
+    AND("AND", "&&"), 
+    OR("OR", "||");
     
-    private static final Map<String, LogicalOperator> MAPS = new HashMap<>(16, 1);
+    private final Collection<String> texts = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
     
-    static {
-        MAPS.put("and", AND);
-        MAPS.put("And", AND);
-        MAPS.put("aNd", AND);
-        MAPS.put("anD", AND);
-        MAPS.put("ANd", AND);
-        MAPS.put("AnD", AND);
-        MAPS.put("aND", AND);
-        MAPS.put("AND", AND);
-        MAPS.put("&&", AND);
-        MAPS.put("or", OR);
-        MAPS.put("Or", OR);
-        MAPS.put("oR", OR);
-        MAPS.put("OR", OR);
-        MAPS.put("||", OR);
+    LogicalOperator(final String... texts) {
+        this.texts.addAll(Arrays.asList(texts));
     }
     
     /**
@@ -54,6 +43,6 @@ public enum LogicalOperator {
      * @return logical operator value
      */
     public static Optional<LogicalOperator> valueFrom(final String text) {
-        return Optional.ofNullable(MAPS.get(text));
+        return Arrays.stream(values()).filter(each -> each.texts.contains(text)).findFirst();
     }
 }

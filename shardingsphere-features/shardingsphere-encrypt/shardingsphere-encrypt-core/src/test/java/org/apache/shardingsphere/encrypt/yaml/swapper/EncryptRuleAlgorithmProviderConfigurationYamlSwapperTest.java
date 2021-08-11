@@ -24,8 +24,8 @@ import org.apache.shardingsphere.encrypt.yaml.config.YamlEncryptRuleConfiguratio
 import org.apache.shardingsphere.encrypt.yaml.config.rule.YamlEncryptTableRuleConfiguration;
 import org.apache.shardingsphere.infra.spi.ShardingSphereServiceLoader;
 import org.apache.shardingsphere.infra.spi.ordered.OrderedSPIRegistry;
-import org.apache.shardingsphere.infra.yaml.config.pojo.algorithm.YamlShardingSphereAlgorithmConfiguration;
-import org.apache.shardingsphere.infra.yaml.config.swapper.YamlRuleConfigurationSwapper;
+import org.apache.shardingsphere.infra.yaml.config.algorithm.YamlShardingSphereAlgorithmConfiguration;
+import org.apache.shardingsphere.infra.yaml.swapper.YamlRuleConfigurationSwapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -38,7 +38,6 @@ import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class EncryptRuleAlgorithmProviderConfigurationYamlSwapperTest {
@@ -54,7 +53,7 @@ public final class EncryptRuleAlgorithmProviderConfigurationYamlSwapperTest {
     public void assertSwapToYamlConfiguration() {
         YamlEncryptRuleConfiguration actual = getSwapper().swapToYamlConfiguration(createAlgorithmProvidedEncryptRuleConfiguration());
         assertThat(actual.getTables().size(), is(1));
-        assertTrue(actual.getEncryptors().isEmpty());
+        assertThat(actual.getEncryptors().size(), is(0));
     }
     
     private AlgorithmProvidedEncryptRuleConfiguration createAlgorithmProvidedEncryptRuleConfiguration() {
@@ -67,7 +66,7 @@ public final class EncryptRuleAlgorithmProviderConfigurationYamlSwapperTest {
     public void assertSwapToObject() {
         AlgorithmProvidedEncryptRuleConfiguration actual = getSwapper().swapToObject(createYamlEncryptRuleConfiguration());
         assertThat(actual.getTables().size(), is(1));
-        assertTrue(actual.getEncryptors().isEmpty());
+        assertThat(actual.getEncryptors().size(), is(0));
     }
     
     private YamlEncryptRuleConfiguration createYamlEncryptRuleConfiguration() {

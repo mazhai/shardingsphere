@@ -1,6 +1,6 @@
 +++
 title = "Apache ShardingSphere社区的探索与拓展"
-weight = 9
+weight = 5
 chapter = true
 +++
 

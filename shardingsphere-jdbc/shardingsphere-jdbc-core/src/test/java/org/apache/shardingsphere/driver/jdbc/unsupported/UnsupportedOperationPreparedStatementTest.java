@@ -19,7 +19,6 @@ package org.apache.shardingsphere.driver.jdbc.unsupported;
 
 import org.apache.shardingsphere.driver.jdbc.core.connection.ShardingSphereConnection;
 import org.apache.shardingsphere.driver.jdbc.core.statement.ShardingSpherePreparedStatement;
-import org.apache.shardingsphere.infra.database.DefaultSchema;
 import org.apache.shardingsphere.infra.database.type.dialect.MySQLDatabaseType;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,8 +39,7 @@ public final class UnsupportedOperationPreparedStatementTest {
     @Before
     public void setUp() throws SQLException {
         ShardingSphereConnection connection = mock(ShardingSphereConnection.class, RETURNS_DEEP_STUBS);
-        when(connection.getSchemaName()).thenReturn(DefaultSchema.LOGIC_NAME);
-        when(connection.getMetaDataContexts().getMetaData(connection.getSchemaName()).getResource().getDatabaseType()).thenReturn(new MySQLDatabaseType());
+        when(connection.getMetaDataContexts().getDefaultMetaData().getResource().getDatabaseType()).thenReturn(new MySQLDatabaseType());
         shardingSpherePreparedStatement = new ShardingSpherePreparedStatement(connection, "SELECT 1");
     }
     

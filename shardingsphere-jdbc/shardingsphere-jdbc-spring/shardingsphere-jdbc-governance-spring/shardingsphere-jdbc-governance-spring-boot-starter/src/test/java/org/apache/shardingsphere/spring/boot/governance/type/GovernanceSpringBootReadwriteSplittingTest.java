@@ -20,9 +20,9 @@ package org.apache.shardingsphere.spring.boot.governance.type;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.shardingsphere.driver.governance.internal.datasource.GovernanceShardingSphereDataSource;
 import org.apache.shardingsphere.infra.context.metadata.MetaDataContexts;
-import org.apache.shardingsphere.infra.database.DefaultSchema;
-import org.apache.shardingsphere.readwritesplitting.rule.ReadwriteSplittingDataSourceRule;
+import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
 import org.apache.shardingsphere.readwritesplitting.rule.ReadwriteSplittingRule;
+import org.apache.shardingsphere.readwritesplitting.rule.ReadwriteSplittingDataSourceRule;
 import org.apache.shardingsphere.spring.boot.governance.util.EmbedTestingServer;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,7 +35,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
-import java.util.Optional;
+import java.util.Collection;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -61,14 +61,13 @@ public class GovernanceSpringBootReadwriteSplittingTest {
         Field field = GovernanceShardingSphereDataSource.class.getDeclaredField("metaDataContexts");
         field.setAccessible(true);
         MetaDataContexts metaDataContexts = (MetaDataContexts) field.get(dataSource);
-        for (DataSource each : metaDataContexts.getMetaData(DefaultSchema.LOGIC_NAME).getResource().getDataSources().values()) {
+        for (DataSource each : metaDataContexts.getDefaultMetaData().getResource().getDataSources().values()) {
             assertThat(((BasicDataSource) each).getMaxTotal(), is(16));
             assertThat(((BasicDataSource) each).getUsername(), is("sa"));
         }
-        Optional<ReadwriteSplittingRule> rule = metaDataContexts.getMetaData(DefaultSchema.LOGIC_NAME).getRuleMetaData().getRules().stream().filter(each
-            -> each instanceof ReadwriteSplittingRule).map(each -> (ReadwriteSplittingRule) each).findFirst();
-        assertTrue(rule.isPresent());
-        assertReadwriteSplittingRule(rule.get());
+        Collection<ShardingSphereRule> rules = metaDataContexts.getDefaultMetaData().getRuleMetaData().getRules();
+        assertThat(rules.size(), is(1));
+        assertReadwriteSplittingRule((ReadwriteSplittingRule) rules.iterator().next());
     }
     
     private void assertReadwriteSplittingRule(final ReadwriteSplittingRule rule) {

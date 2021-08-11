@@ -41,7 +41,7 @@ public final class PostgreSQLCommandPacketFactory {
      *
      * @param commandPacketType command packet type for PostgreSQL
      * @param payload packet payload for PostgreSQL
-     * @param connectionId connection ID
+     * @param connectionId connection id
      * @return command packet for PostgreSQL
      */
     public static PostgreSQLCommandPacket newInstance(final PostgreSQLCommandPacketType commandPacketType, final PostgreSQLPacketPayload payload, final int connectionId) {

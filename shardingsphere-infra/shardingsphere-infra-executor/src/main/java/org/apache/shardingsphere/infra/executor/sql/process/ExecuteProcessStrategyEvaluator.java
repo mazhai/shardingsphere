@@ -24,9 +24,7 @@ import org.apache.shardingsphere.infra.config.properties.ConfigurationProperties
 import org.apache.shardingsphere.infra.config.properties.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.executor.kernel.model.ExecutionGroupContext;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.SQLExecutionUnit;
-import org.apache.shardingsphere.sql.parser.sql.common.statement.SQLStatement;
 import org.apache.shardingsphere.sql.parser.sql.common.statement.ddl.DDLStatement;
-import org.apache.shardingsphere.sql.parser.sql.common.statement.dml.DMLStatement;
 
 /**
  * Process strategy evaluator.
@@ -43,9 +41,8 @@ public final class ExecuteProcessStrategyEvaluator {
      * @return submit or not
      */
     public static boolean evaluate(final SQLStatementContext<?> context, final ExecutionGroupContext<? extends SQLExecutionUnit> executionGroupContext, final ConfigurationProperties props) {
+        // TODO : Add more conditions to evaluate whether to submit this process task or not
         boolean showProcessListEnabled = props.getValue(ConfigurationPropertyKey.SHOW_PROCESS_LIST_ENABLED);
-        SQLStatement statement = context.getSqlStatement();
-        boolean statementEnabled = statement instanceof DDLStatement || statement instanceof DMLStatement;
-        return showProcessListEnabled && statementEnabled;
+        return showProcessListEnabled && context.getSqlStatement() instanceof DDLStatement;
     }
 }

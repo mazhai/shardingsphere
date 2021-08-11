@@ -25,8 +25,8 @@ import java.util.List;
 /**
  * Delete row event.
  */
-@Getter
 @Setter
+@Getter
 public final class DeleteRowEvent extends AbstractRowEvent {
     
     private List<Object> primaryKeys;

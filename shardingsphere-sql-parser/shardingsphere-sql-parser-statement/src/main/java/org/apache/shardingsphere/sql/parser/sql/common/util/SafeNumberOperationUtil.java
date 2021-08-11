@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.sql.parser.sql.common.util;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -24,8 +26,6 @@ import lombok.SneakyThrows;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SafeNumberOperationUtil {
-    
+
     /**
      * Execute range intersection method by safe mode.
      *
@@ -58,7 +58,7 @@ public final class SafeNumberOperationUtil {
             return newRange.intersection(newConnectedRange);
         }
     }
-    
+
     /**
      * Execute range closed method by safe mode.
      *
@@ -70,14 +70,14 @@ public final class SafeNumberOperationUtil {
         try {
             return Range.closed(lowerEndpoint, upperEndpoint);
         } catch (final ClassCastException ex) {
-            Class<?> clazz = getTargetNumericType(Arrays.asList(lowerEndpoint, upperEndpoint));
+            Class<?> clazz = getTargetNumericType(Lists.newArrayList(lowerEndpoint, upperEndpoint));
             if (null == clazz) {
                 throw ex;
             }
             return Range.closed(parseNumberByClazz(lowerEndpoint.toString(), clazz), parseNumberByClazz(upperEndpoint.toString(), clazz));
         }
     }
-    
+
     /**
      * Execute range contains method by safe mode.
      *
@@ -91,7 +91,7 @@ public final class SafeNumberOperationUtil {
         } catch (final ClassCastException ex) {
             Comparable<?> rangeUpperEndpoint = range.hasUpperBound() ? range.upperEndpoint() : null;
             Comparable<?> rangeLowerEndpoint = range.hasLowerBound() ? range.lowerEndpoint() : null;
-            Class<?> clazz = getTargetNumericType(Arrays.asList(rangeLowerEndpoint, rangeUpperEndpoint, endpoint));
+            Class<?> clazz = getTargetNumericType(Lists.newArrayList(rangeLowerEndpoint, rangeUpperEndpoint, endpoint));
             if (null == clazz) {
                 throw ex;
             }
@@ -99,7 +99,7 @@ public final class SafeNumberOperationUtil {
             return newRange.contains(parseNumberByClazz(endpoint.toString(), clazz));
         }
     }
-    
+
     /**
      * Execute range equals method by safe mode.
      *
@@ -116,34 +116,34 @@ public final class SafeNumberOperationUtil {
         Range<Comparable<?>> newTargetRange = createTargetNumericTypeRange(targetRange, clazz);
         return newSourceRange.equals(newTargetRange);
     }
-    
+
     /**
      * Execute collection equals method by safe mode.
      *
-     * @param sources source collection
+     * @param sourceCollection source collection
      * @param targetCollection target collection
      * @return whether the element in source collection and target collection are all same
      */
-    public static boolean safeCollectionEquals(final Collection<Comparable<?>> sources, final Collection<Comparable<?>> targetCollection) {
-        List<Comparable<?>> collection = new ArrayList<>(sources);
+    public static boolean safeCollectionEquals(final Collection<Comparable<?>> sourceCollection, final Collection<Comparable<?>> targetCollection) {
+        List<Comparable<?>> collection = Lists.newArrayList(sourceCollection);
         collection.addAll(targetCollection);
         Class<?> clazz = getTargetNumericType(collection);
         if (null == clazz) {
-            return sources.equals(targetCollection);
+            return sourceCollection.equals(targetCollection);
         }
-        List<Comparable<?>> sourceClazzCollection = sources.stream().map(number -> parseNumberByClazz(number.toString(), clazz)).collect(Collectors.toList());
+        List<Comparable<?>> sourceClazzCollection = sourceCollection.stream().map(number -> parseNumberByClazz(number.toString(), clazz)).collect(Collectors.toList());
         List<Comparable<?>> targetClazzCollection = targetCollection.stream().map(number -> parseNumberByClazz(number.toString(), clazz)).collect(Collectors.toList());
         return sourceClazzCollection.equals(targetClazzCollection);
     }
-    
+
     private static Class<?> getRangeTargetNumericType(final Range<Comparable<?>> sourceRange, final Range<Comparable<?>> targetRange) {
         Comparable<?> sourceRangeLowerEndpoint = sourceRange.hasLowerBound() ? sourceRange.lowerEndpoint() : null;
         Comparable<?> sourceRangeUpperEndpoint = sourceRange.hasUpperBound() ? sourceRange.upperEndpoint() : null;
         Comparable<?> targetRangeLowerEndpoint = targetRange.hasLowerBound() ? targetRange.lowerEndpoint() : null;
         Comparable<?> targetRangeUpperEndpoint = targetRange.hasUpperBound() ? targetRange.upperEndpoint() : null;
-        return getTargetNumericType(Arrays.asList(sourceRangeLowerEndpoint, sourceRangeUpperEndpoint, targetRangeLowerEndpoint, targetRangeUpperEndpoint));
+        return getTargetNumericType(Lists.newArrayList(sourceRangeLowerEndpoint, sourceRangeUpperEndpoint, targetRangeLowerEndpoint, targetRangeUpperEndpoint));
     }
-    
+
     private static Range<Comparable<?>> createTargetNumericTypeRange(final Range<Comparable<?>> range, final Class<?> clazz) {
         if (range.hasLowerBound() && range.hasUpperBound()) {
             Comparable<?> lowerEndpoint = parseNumberByClazz(range.lowerEndpoint().toString(), clazz);
@@ -160,8 +160,9 @@ public final class SafeNumberOperationUtil {
         Comparable<?> upperEndpoint = parseNumberByClazz(range.upperEndpoint().toString(), clazz);
         return Range.upTo(upperEndpoint, range.upperBoundType());
     }
-    
+
     private static Class<?> getTargetNumericType(final List<Comparable<?>> endpoints) {
+        Preconditions.checkNotNull(endpoints, "getTargetNumericType param endpoints can not be null.");
         Set<Class<?>> clazzSet = endpoints.stream().filter(Objects::nonNull).map(Comparable::getClass).collect(Collectors.toSet());
         if (clazzSet.contains(BigDecimal.class)) {
             return BigDecimal.class;
@@ -181,10 +182,9 @@ public final class SafeNumberOperationUtil {
         if (clazzSet.contains(Integer.class)) {
             return Integer.class;
         }
-        // TODO do not permit return null, please use optional
         return null;
     }
-    
+
     @SneakyThrows(ReflectiveOperationException.class)
     private static Comparable<?> parseNumberByClazz(final String number, final Class<?> clazz) {
         return (Comparable<?>) clazz.getConstructor(String.class).newInstance(number);

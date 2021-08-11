@@ -24,8 +24,8 @@ import lombok.Setter;
 /**
  * Abstract scaling executor.
  */
-@Getter
 @Setter
+@Getter
 public abstract class AbstractScalingExecutor implements ScalingExecutor {
     
     @Setter(AccessLevel.PROTECTED)

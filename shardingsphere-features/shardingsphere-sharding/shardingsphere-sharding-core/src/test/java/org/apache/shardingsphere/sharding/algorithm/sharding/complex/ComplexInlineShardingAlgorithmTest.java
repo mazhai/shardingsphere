@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sharding.algorithm.sharding.complex;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import org.apache.shardingsphere.sharding.api.sharding.complex.ComplexKeysShardingValue;
 import org.junit.Before;
@@ -60,30 +61,35 @@ public final class ComplexInlineShardingAlgorithmTest {
     
     @Test
     public void assertDoSharding() {
-        List<String> availableTargetNames = Arrays.asList("t_order_0_0", "t_order_0_1", "t_order_1_0", "t_order_1_1");
-        Map<String, Collection<Comparable<?>>> sharingValueMap = new HashMap<>(2, 1);
+        List<String> availableTargetNames = Lists.newArrayList("t_order_0_0", "t_order_0_1", "t_order_1_0", "t_order_1_1");
+        Map<String, Collection<Comparable<?>>> sharingValueMap = new HashMap<>();
         sharingValueMap.put("type", Collections.singletonList(2));
         sharingValueMap.put("order_id", Collections.singletonList(2));
-        ComplexKeysShardingValue<Comparable<?>> shardingValue = new ComplexKeysShardingValue<>("t_order", sharingValueMap, Collections.emptyMap());
+        Map<String, Range<Comparable<?>>> rangeShardingValueMap = new HashMap<>();
+        ComplexKeysShardingValue<Comparable<?>> shardingValue = new ComplexKeysShardingValue<>("t_order", sharingValueMap, rangeShardingValueMap);
         Collection<String> actual = complexInlineShardingAlgorithm.doSharding(availableTargetNames, shardingValue);
-        assertTrue(1 == actual.size() && actual.contains("t_order_0_0"));
+        assertTrue(actual.size() == 1 && actual.contains("t_order_0_0"));
     }
     
     @Test
     public void assertDoShardingWithMultiValue() {
-        List<String> availableTargetNames = Arrays.asList("t_order_0_0", "t_order_0_1", "t_order_1_0", "t_order_1_1");
-        Map<String, Collection<Comparable<?>>> sharingValueMap = new HashMap<>(2, 1);
+        List<String> availableTargetNames = Lists.newArrayList("t_order_0_0", "t_order_0_1", "t_order_1_0", "t_order_1_1");
+        Map<String, Collection<Comparable<?>>> sharingValueMap = new HashMap<>();
         sharingValueMap.put("type", Arrays.asList(1, 2));
         sharingValueMap.put("order_id", Arrays.asList(1, 2));
-        ComplexKeysShardingValue<Comparable<?>> shardingValue = new ComplexKeysShardingValue<>("t_order", sharingValueMap, Collections.emptyMap());
+        Map<String, Range<Comparable<?>>> rangeShardingValueMap = new HashMap<>();
+        ComplexKeysShardingValue<Comparable<?>> shardingValue = new ComplexKeysShardingValue<>("t_order", sharingValueMap, rangeShardingValueMap);
         Collection<String> actual = complexInlineShardingAlgorithm.doSharding(availableTargetNames, shardingValue);
         assertTrue(actual.containsAll(availableTargetNames));
     }
     
     @Test
     public void assertDoShardingWithRangeValue() {
-        List<String> availableTargetNames = Arrays.asList("t_order_0_0", "t_order_0_1", "t_order_1_0", "t_order_1_1");
-        ComplexKeysShardingValue<Comparable<?>> shardingValue = new ComplexKeysShardingValue<>("t_order", Collections.emptyMap(), Collections.singletonMap("type", Range.all()));
+        List<String> availableTargetNames = Lists.newArrayList("t_order_0_0", "t_order_0_1", "t_order_1_0", "t_order_1_1");
+        Map<String, Collection<Comparable<?>>> sharingValueMap = new HashMap<>();
+        Map<String, Range<Comparable<?>>> rangeShardingValueMap = new HashMap<>();
+        rangeShardingValueMap.put("type", Range.all());
+        ComplexKeysShardingValue<Comparable<?>> shardingValue = new ComplexKeysShardingValue<>("t_order", sharingValueMap, rangeShardingValueMap);
         Collection<String> actual = complexInlineShardingAlgorithmAllowRangeQuery.doSharding(availableTargetNames, shardingValue);
         assertTrue(actual.containsAll(availableTargetNames));
     }

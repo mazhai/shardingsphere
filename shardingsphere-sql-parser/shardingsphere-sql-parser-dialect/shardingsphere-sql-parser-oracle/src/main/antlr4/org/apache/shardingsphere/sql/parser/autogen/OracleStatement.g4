@@ -51,12 +51,5 @@ execute
     | alterDatabase
     | alterSystem
     | setConstraints
-    | analyze
-    | associateStatistics
-    | disassociateStatistics
-    | audit
-    | noAudit
-    | comment
-    | flashbackDatabase
     ) SEMI_?
     ;

@@ -17,7 +17,6 @@
 
 package org.apache.shardingsphere.infra.metadata.schema;
 
-import lombok.Getter;
 import org.apache.shardingsphere.infra.metadata.schema.model.TableMetaData;
 
 import java.util.ArrayList;
@@ -31,7 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * ShardingSphere schema.
  */
-@Getter
 public final class ShardingSphereSchema {
     
     private final Map<String, TableMetaData> tables;

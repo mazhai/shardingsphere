@@ -21,8 +21,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Properties;
-
 /**
  * Data source parameters.
  */
@@ -41,13 +39,13 @@ public final class DataSourceParameter {
     
     private long idleTimeoutMilliseconds = 60 * 1000L;
     
-    private long maxLifetimeMilliseconds = 30 * 60 * 1000L;
+    private long maxLifetimeMilliseconds;
     
     private int maxPoolSize = 50;
     
     private int minPoolSize = 1;
     
-    private boolean readOnly;
+    private long maintenanceIntervalMilliseconds = 30 * 1000L;
     
-    private Properties customPoolProps;
+    private boolean readOnly;
 }

@@ -30,8 +30,7 @@ import org.apache.shardingsphere.sql.parser.sql.common.segment.generic.WithSegme
 import org.apache.shardingsphere.sql.parser.sql.common.segment.generic.table.TableSegment;
 import org.apache.shardingsphere.sql.parser.sql.common.statement.AbstractSQLStatement;
 
-import java.util.Collection;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -41,23 +40,23 @@ import java.util.Optional;
 @Setter
 @ToString
 public abstract class SelectStatement extends AbstractSQLStatement implements DMLStatement {
-    
+
     private ProjectionsSegment projections;
-    
+
     private TableSegment from;
-    
+
     private WhereSegment where;
-    
+
     private GroupBySegment groupBy;
-    
+
     private HavingSegment having;
-    
+
     private OrderBySegment orderBy;
-    
+
     private WithSegment withSegment;
-    
-    private Collection<UnionSegment> unionSegments = new LinkedList<>();
-    
+
+    private List<UnionSegment> unionSegments;
+
     /**
      * Get where.
      *
@@ -66,7 +65,7 @@ public abstract class SelectStatement extends AbstractSQLStatement implements DM
     public Optional<WhereSegment> getWhere() {
         return Optional.ofNullable(where);
     }
-    
+
     /**
      * Get group by segment.
      *
@@ -75,7 +74,7 @@ public abstract class SelectStatement extends AbstractSQLStatement implements DM
     public Optional<GroupBySegment> getGroupBy() {
         return Optional.ofNullable(groupBy);
     }
-    
+
     /**
      * Get having segment.
      *
@@ -84,7 +83,7 @@ public abstract class SelectStatement extends AbstractSQLStatement implements DM
     public Optional<HavingSegment> getHaving() {
         return Optional.ofNullable(having);
     }
-    
+
     /**
      * Get order by segment.
      *
@@ -93,7 +92,7 @@ public abstract class SelectStatement extends AbstractSQLStatement implements DM
     public Optional<OrderBySegment> getOrderBy() {
         return Optional.ofNullable(orderBy);
     }
-    
+
     /**
      * Get with segment.
      *
@@ -101,5 +100,14 @@ public abstract class SelectStatement extends AbstractSQLStatement implements DM
      */
     public Optional<WithSegment> getWithSegment() {
         return Optional.ofNullable(withSegment);
+    }
+
+    /**
+     * Get with union.
+     *
+     * @return union list
+     */
+    public Optional<List<UnionSegment>> getUnionSegments() {
+        return Optional.ofNullable(unionSegments);
     }
 }

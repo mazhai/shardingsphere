@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.binder.segment.select.projection.engine;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.shardingsphere.infra.binder.segment.select.projection.Projection;
 import org.apache.shardingsphere.infra.binder.segment.select.projection.impl.AggregationDistinctProjection;
@@ -35,11 +36,9 @@ import org.apache.shardingsphere.sql.parser.sql.common.segment.dml.item.Shorthan
 import org.apache.shardingsphere.sql.parser.sql.common.segment.generic.AliasSegment;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.generic.OwnerSegment;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.generic.table.SimpleTableSegment;
-import org.apache.shardingsphere.sql.parser.sql.common.segment.generic.table.TableNameSegment;
 import org.apache.shardingsphere.sql.parser.sql.common.value.identifier.IdentifierValue;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -72,10 +71,10 @@ public final class ProjectionEngineTest {
     @Test
     public void assertCreateProjectionWhenProjectionSegmentInstanceOfShorthandProjectionSegmentAndDuplicateTableSegment() {
         Collection<SimpleTableSegment> tableSegments = new LinkedList<>();
-        tableSegments.add(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue("t_order"))));
-        tableSegments.add(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue("t_order"))));
+        tableSegments.add(new SimpleTableSegment(0, 0, new IdentifierValue("t_order")));
+        tableSegments.add(new SimpleTableSegment(0, 0, new IdentifierValue("t_order")));
         ShardingSphereSchema schema = mock(ShardingSphereSchema.class);
-        when(schema.getAllColumnNames("t_order")).thenReturn(Arrays.asList("order_id", "content"));
+        when(schema.getAllColumnNames("t_order")).thenReturn(Lists.newArrayList("order_id", "content"));
         Optional<Projection> actual = new ProjectionEngine(schema).createProjection(tableSegments, new ShorthandProjectionSegment(0, 0));
         assertTrue(actual.isPresent());
         assertThat(actual.get(), instanceOf(ShorthandProjection.class));
@@ -91,7 +90,7 @@ public final class ProjectionEngineTest {
         assertTrue(actual.isPresent());
         assertThat(actual.get(), instanceOf(ColumnProjection.class));
     }
-    
+
     @Test
     public void assertCreateProjectionWhenProjectionSegmentInstanceOfExpressionProjectionSegment() {
         ExpressionProjectionSegment expressionProjectionSegment = new ExpressionProjectionSegment(0, 10, "text");
@@ -131,4 +130,5 @@ public final class ProjectionEngineTest {
         assertTrue(actual.isPresent());
         assertThat(actual.get(), instanceOf(AggregationProjection.class));
     }
+    
 }

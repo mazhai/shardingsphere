@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.scaling.core.job.progress;
 
+import com.google.common.collect.Maps;
 import org.apache.shardingsphere.scaling.core.job.JobStatus;
 import org.apache.shardingsphere.scaling.core.job.position.FinishedPosition;
 import org.apache.shardingsphere.scaling.core.job.position.PlaceholderPosition;
@@ -25,8 +26,6 @@ import org.apache.shardingsphere.scaling.core.job.task.incremental.IncrementalTa
 import org.apache.shardingsphere.scaling.core.job.task.inventory.InventoryTaskProgress;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -70,11 +69,13 @@ public final class JobProgressTest {
     }
     
     private Map<String, IncrementalTaskProgress> mockIncrementalTaskProgressMap() {
-        return Collections.singletonMap("ds0", new IncrementalTaskProgress(new PlaceholderPosition()));
+        Map<String, IncrementalTaskProgress> result = Maps.newHashMap();
+        result.put("ds0", new IncrementalTaskProgress(new PlaceholderPosition()));
+        return result;
     }
     
     private Map<String, InventoryTaskProgress> mockInventoryTaskProgressMap() {
-        Map<String, InventoryTaskProgress> result = new HashMap<>(4, 1);
+        Map<String, InventoryTaskProgress> result = Maps.newHashMap();
         result.put("ds0.t_1", new InventoryTaskProgress(new FinishedPosition()));
         result.put("ds0.t_2", new InventoryTaskProgress(new FinishedPosition()));
         result.put("ds1.t_1", new InventoryTaskProgress(new PlaceholderPosition()));

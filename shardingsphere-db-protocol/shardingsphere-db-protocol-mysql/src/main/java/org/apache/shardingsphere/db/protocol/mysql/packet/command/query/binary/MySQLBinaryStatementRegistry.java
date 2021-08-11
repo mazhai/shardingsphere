@@ -48,7 +48,7 @@ public final class MySQLBinaryStatementRegistry {
     }
     
     /**
-     * Register.
+     * Register SQL.
      *
      * @param sql SQL
      * @param parameterCount parameter count
@@ -66,23 +66,24 @@ public final class MySQLBinaryStatementRegistry {
     }
     
     /**
-     * Get binary statement.
+     * Get binary prepared statement.
      *
      * @param statementId statement ID
      * @return binary prepared statement
      */
-    public MySQLBinaryStatement get(final int statementId) {
+    public MySQLBinaryStatement getBinaryStatement(final int statementId) {
         return binaryStatements.get(statementId);
     }
     
     /**
-     * Unregister.
+     * Remove expired cache statement.
      *
      * @param statementId statement ID
      */
-    public synchronized void unregister(final int statementId) {
-        if (binaryStatements.containsKey(statementId)) {
-            statementIdAssigner.remove(binaryStatements.get(statementId).getSql());
+    public synchronized void remove(final int statementId) {
+        MySQLBinaryStatement binaryStatement = getBinaryStatement(statementId);
+        if (null != binaryStatement) {
+            statementIdAssigner.remove(binaryStatement.getSql());
             binaryStatements.remove(statementId);
         }
     }

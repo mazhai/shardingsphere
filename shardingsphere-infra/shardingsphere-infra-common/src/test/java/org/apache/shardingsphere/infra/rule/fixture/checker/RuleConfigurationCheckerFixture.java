@@ -29,7 +29,7 @@ public final class RuleConfigurationCheckerFixture implements RuleConfigurationC
 
     @Override
     public int getOrder() {
-        return -10;
+        return 0;
     }
 
     @Override

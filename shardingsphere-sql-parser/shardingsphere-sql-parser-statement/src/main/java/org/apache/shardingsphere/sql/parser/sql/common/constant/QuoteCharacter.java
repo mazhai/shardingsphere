@@ -64,6 +64,6 @@ public enum QuoteCharacter {
      * @return wrapped value
      */
     public String wrap(final String value) {
-        return startDelimiter + value + endDelimiter;
+        return String.format("%s%s%s", startDelimiter, value, endDelimiter);
     }
 }

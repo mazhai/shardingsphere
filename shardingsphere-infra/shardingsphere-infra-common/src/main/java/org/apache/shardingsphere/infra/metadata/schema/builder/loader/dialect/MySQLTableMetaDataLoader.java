@@ -59,7 +59,7 @@ public final class MySQLTableMetaDataLoader implements DialectTableMetaDataLoade
         Map<String, Collection<ColumnMetaData>> columnMetaDataMap = loadColumnMetaDataMap(dataSource, existedTables);
         Map<String, Collection<IndexMetaData>> indexMetaDataMap = columnMetaDataMap.isEmpty() ? Collections.emptyMap() : loadIndexMetaData(dataSource, columnMetaDataMap.keySet());
         for (Entry<String, Collection<ColumnMetaData>> entry : columnMetaDataMap.entrySet()) {
-            result.put(entry.getKey(), new TableMetaData(entry.getKey(), entry.getValue(), indexMetaDataMap.getOrDefault(entry.getKey(), Collections.emptyList())));
+            result.put(entry.getKey(), new TableMetaData(entry.getValue(), indexMetaDataMap.getOrDefault(entry.getKey(), Collections.emptyList())));
         }
         return result;
     }
@@ -70,7 +70,6 @@ public final class MySQLTableMetaDataLoader implements DialectTableMetaDataLoade
                 Connection connection = dataSource.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(getTableMetaDataSQL(existedTables))) {
             Map<String, Integer> dataTypes = DataTypeLoader.load(connection.getMetaData());
-            dataTypes.putIfAbsent("JSON", -1);
             preparedStatement.setString(1, connection.getCatalog());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {

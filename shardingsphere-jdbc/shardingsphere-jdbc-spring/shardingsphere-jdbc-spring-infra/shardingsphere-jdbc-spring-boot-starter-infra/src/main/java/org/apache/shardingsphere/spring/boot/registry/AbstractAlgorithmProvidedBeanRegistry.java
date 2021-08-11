@@ -23,7 +23,7 @@ import org.apache.shardingsphere.infra.config.algorithm.ShardingSphereAlgorithm;
 import org.apache.shardingsphere.infra.config.algorithm.ShardingSphereAlgorithmPostProcessor;
 import org.apache.shardingsphere.infra.spi.ShardingSphereServiceLoader;
 import org.apache.shardingsphere.infra.spi.typed.TypedSPIRegistry;
-import org.apache.shardingsphere.infra.yaml.config.pojo.algorithm.YamlShardingSphereAlgorithmConfiguration;
+import org.apache.shardingsphere.infra.yaml.config.algorithm.YamlShardingSphereAlgorithmConfiguration;
 import org.apache.shardingsphere.spring.boot.util.PropertyUtil;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -53,12 +53,14 @@ public abstract class AbstractAlgorithmProvidedBeanRegistry<T extends ShardingSp
     
     private final Environment environment;
     
-    @SuppressWarnings("unchecked")
-    protected final void registerBean(final String prefix, final Class<T> algorithmClass, final BeanDefinitionRegistry registry) {
+    @SuppressWarnings("all")
+    protected void registerBean(final String prefix, final Class<T> algorithmClass, final BeanDefinitionRegistry registry) {
         boolean existPrefix = PropertyUtil.containPropertyPrefix(environment, prefix);
         if (existPrefix) {
             Map<String, Object> paramMap = PropertyUtil.handle(environment, prefix, Map.class);
-            Set<String> keys = paramMap.keySet().stream().map(key -> key.contains(POINT) ? key.substring(0, key.indexOf(POINT)) : key).collect(Collectors.toSet());
+            Set<String> keys = paramMap.keySet().stream().map(key -> {
+                return key.contains(POINT) ? key.substring(0, key.indexOf(POINT)) : key;
+            }).collect(Collectors.toSet());
             Map<String, YamlShardingSphereAlgorithmConfiguration> shardingAlgorithmMap = new LinkedHashMap<>();
             keys.forEach(each -> {
                 YamlShardingSphereAlgorithmConfiguration config = new YamlShardingSphereAlgorithmConfiguration();
@@ -84,16 +86,16 @@ public abstract class AbstractAlgorithmProvidedBeanRegistry<T extends ShardingSp
     }
     
     @Override
-    public final void postProcessBeanFactory(final ConfigurableListableBeanFactory configurableListableBeanFactory) {
+    public void postProcessBeanFactory(final ConfigurableListableBeanFactory configurableListableBeanFactory) {
     }
     
     @Override
-    public final Object postProcessBeforeInitialization(final Object bean, final String beanName) {
+    public Object postProcessBeforeInitialization(final Object bean, final String beanName) {
         return bean;
     }
     
     @Override
-    public final Object postProcessAfterInitialization(final Object bean, final String beanName) {
+    public Object postProcessAfterInitialization(final Object bean, final String beanName) {
         if (bean instanceof ShardingSphereAlgorithmPostProcessor) {
             ((ShardingSphereAlgorithmPostProcessor) bean).init();
         }

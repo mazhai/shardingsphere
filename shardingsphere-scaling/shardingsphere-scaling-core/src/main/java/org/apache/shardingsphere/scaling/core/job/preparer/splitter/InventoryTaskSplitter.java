@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.scaling.core.job.preparer.splitter;
 
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.infra.metadata.schema.model.TableMetaData;
 import org.apache.shardingsphere.scaling.core.common.datasource.DataSourceManager;
@@ -41,7 +42,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -108,21 +108,14 @@ public final class InventoryTaskSplitter {
     private Collection<ScalingPosition<?>> getInventoryPositions(
             final JobContext jobContext, final InventoryDumperConfiguration dumperConfig, final DataSource dataSource, final MetaDataManager metaDataManager) {
         if (null != jobContext.getInitProgress()) {
-            Collection<ScalingPosition<?>> result = jobContext.getInitProgress().getInventoryPosition(dumperConfig.getTableName()).values();
-            result.stream().findFirst().ifPresent(position -> {
-                if (position instanceof PrimaryKeyPosition) {
-                    String primaryKey = metaDataManager.getTableMetaData(dumperConfig.getTableName()).getPrimaryKeyColumns().get(0);
-                    dumperConfig.setPrimaryKey(primaryKey);
-                }
-            });
-            return result;
+            return jobContext.getInitProgress().getInventoryPosition(dumperConfig.getTableName()).values();
         }
         if (isSpiltByPrimaryKeyRange(metaDataManager, dumperConfig.getTableName())) {
             String primaryKey = metaDataManager.getTableMetaData(dumperConfig.getTableName()).getPrimaryKeyColumns().get(0);
             dumperConfig.setPrimaryKey(primaryKey);
             return getPositionByPrimaryKeyRange(jobContext, dataSource, dumperConfig);
         }
-        return Collections.singletonList(new PlaceholderPosition());
+        return Lists.newArrayList(new PlaceholderPosition());
     }
     
     private boolean isSpiltByPrimaryKeyRange(final MetaDataManager metaDataManager, final String tableName) {

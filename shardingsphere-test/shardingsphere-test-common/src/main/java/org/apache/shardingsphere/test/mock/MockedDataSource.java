@@ -17,14 +17,10 @@
 
 package org.apache.shardingsphere.test.mock;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.logging.Logger;
 
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -35,19 +31,7 @@ import static org.mockito.Mockito.when;
 /**
  * Mocked data source.
  */
-@Getter
-@Setter
 public final class MockedDataSource implements DataSource {
-    
-    private String driverClassName;
-    
-    private String url;
-    
-    private String username;
-    
-    private String password;
-    
-    private List<String> connectionInitSqls;
     
     @SuppressWarnings("MagicConstant")
     @Override

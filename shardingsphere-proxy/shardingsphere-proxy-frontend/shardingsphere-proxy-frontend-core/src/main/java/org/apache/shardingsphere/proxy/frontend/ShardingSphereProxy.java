@@ -41,7 +41,7 @@ import org.apache.shardingsphere.proxy.frontend.protocol.FrontDatabaseProtocolTy
  */
 @Slf4j
 public final class ShardingSphereProxy {
-
+    
     private EventLoopGroup bossGroup;
     
     private EventLoopGroup workerGroup;
@@ -54,25 +54,17 @@ public final class ShardingSphereProxy {
     @SneakyThrows(InterruptedException.class)
     public void start(final int port) {
         try {
-            ChannelFuture future = startInternal(port);
-            accept(future);
+            createEventLoopGroup();
+            ServerBootstrap bootstrap = new ServerBootstrap();
+            initServerBootstrap(bootstrap);
+            ChannelFuture future = bootstrap.bind(port).sync();
+            log.info("ShardingSphere-Proxy start success.");
+            future.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
             BackendExecutorContext.getInstance().getExecutorEngine().close();
         }
-    }
-    
-    private ChannelFuture startInternal(final int port) throws InterruptedException {
-        createEventLoopGroup();
-        ServerBootstrap bootstrap = new ServerBootstrap();
-        initServerBootstrap(bootstrap);
-        return bootstrap.bind(port).sync();
-    }
-    
-    private void accept(final ChannelFuture future) throws InterruptedException {
-        log.info("ShardingSphere-Proxy start success");
-        future.channel().closeFuture().sync();
     }
     
     private void createEventLoopGroup() {

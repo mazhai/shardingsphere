@@ -23,7 +23,7 @@ import org.junit.Test;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
-import java.util.Collections;
+import java.util.HashMap;
 
 public final class UnsupportedGeneratedKeysResultSetTest {
     
@@ -179,12 +179,12 @@ public final class UnsupportedGeneratedKeysResultSetTest {
     
     @Test(expected = SQLFeatureNotSupportedException.class)
     public void getObjectWithColumnIndex() throws SQLException {
-        new GeneratedKeysResultSet().getObject(1, Collections.emptyMap());
+        new GeneratedKeysResultSet().getObject(1, new HashMap<>());
     }
     
     @Test(expected = SQLFeatureNotSupportedException.class)
     public void getObjectWithColumnLabel() throws SQLException {
-        new GeneratedKeysResultSet().getObject("", Collections.emptyMap());
+        new GeneratedKeysResultSet().getObject("", new HashMap<>());
     }
     
     @Test(expected = SQLFeatureNotSupportedException.class)

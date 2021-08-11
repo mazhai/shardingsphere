@@ -19,7 +19,6 @@ package org.apache.shardingsphere.spring.namespace.governance;
 
 import org.apache.shardingsphere.driver.governance.internal.datasource.GovernanceShardingSphereDataSource;
 import org.apache.shardingsphere.infra.context.metadata.MetaDataContexts;
-import org.apache.shardingsphere.infra.database.DefaultSchema;
 import org.apache.shardingsphere.sharding.rule.ShardingRule;
 import org.apache.shardingsphere.spring.namespace.governance.util.EmbedTestingServer;
 import org.apache.shardingsphere.spring.namespace.governance.util.FieldValueUtil;
@@ -30,12 +29,10 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 import javax.sql.DataSource;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration(locations = "classpath:META-INF/rdb/sharding-readwrite-splitting-governance.xml")
 public class GovernanceShardingReadwriteSplittingNamespaceTest extends AbstractJUnit4SpringContextTests {
@@ -54,21 +51,20 @@ public class GovernanceShardingReadwriteSplittingNamespaceTest extends AbstractJ
         assertNotNull(dataSourceMap.get("dbtbl_write_1"));
         assertNotNull(dataSourceMap.get("dbtbl_1_read_0"));
         assertNotNull(dataSourceMap.get("dbtbl_1_read_1"));
-        Optional<ShardingRule> shardingRule = getShardingRule("dataSourceByUserStrategyGovernance");
-        assertTrue(shardingRule.isPresent());
-        assertThat(shardingRule.get().getTableRules().size(), is(1));
-        assertThat(shardingRule.get().getTableRules().iterator().next().getLogicTable(), is("t_order"));
+        ShardingRule shardingRule = getShardingRule("dataSourceByUserStrategyGovernance");
+        assertThat(shardingRule.getTableRules().size(), is(1));
+        assertThat(shardingRule.getTableRules().iterator().next().getLogicTable(), is("t_order"));
     }
     
     private Map<String, DataSource> getDataSourceMap(final String dataSourceName) {
         GovernanceShardingSphereDataSource shardingSphereDataSource = applicationContext.getBean(dataSourceName, GovernanceShardingSphereDataSource.class);
         MetaDataContexts metaDataContexts = (MetaDataContexts) FieldValueUtil.getFieldValue(shardingSphereDataSource, "metaDataContexts");
-        return metaDataContexts.getMetaData(DefaultSchema.LOGIC_NAME).getResource().getDataSources();
+        return metaDataContexts.getDefaultMetaData().getResource().getDataSources();
     }
     
-    private Optional<ShardingRule> getShardingRule(final String dataSourceName) {
+    private ShardingRule getShardingRule(final String dataSourceName) {
         GovernanceShardingSphereDataSource shardingSphereDataSource = applicationContext.getBean(dataSourceName, GovernanceShardingSphereDataSource.class);
         MetaDataContexts metaDataContexts = (MetaDataContexts) FieldValueUtil.getFieldValue(shardingSphereDataSource, "metaDataContexts");
-        return metaDataContexts.getMetaData(DefaultSchema.LOGIC_NAME).getRuleMetaData().getRules().stream().filter(each -> each instanceof ShardingRule).map(each -> (ShardingRule) each).findFirst();
+        return (ShardingRule) metaDataContexts.getDefaultMetaData().getRuleMetaData().getRules().iterator().next();
     }
 }

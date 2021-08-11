@@ -19,7 +19,6 @@ package org.apache.shardingsphere.proxy.backend.text.transaction;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.shardingsphere.infra.binder.statement.SQLStatementContext;
 import org.apache.shardingsphere.proxy.backend.communication.jdbc.connection.BackendConnection;
 import org.apache.shardingsphere.proxy.backend.text.TextProtocolBackendHandler;
 import org.apache.shardingsphere.proxy.backend.text.data.impl.BroadcastDatabaseBackendHandler;
@@ -43,13 +42,12 @@ public final class TransactionBackendHandlerFactory {
     /**
      * New instance of backend handler.
      * 
-     * @param sqlStatementContext SQL statement context
+     * @param tclStatement TCL statement
      * @param sql SQL
      * @param backendConnection backend connection
      * @return backend handler
      */
-    public static TextProtocolBackendHandler newInstance(final SQLStatementContext<? extends TCLStatement> sqlStatementContext, final String sql, final BackendConnection backendConnection) {
-        TCLStatement tclStatement = sqlStatementContext.getSqlStatement();
+    public static TextProtocolBackendHandler newInstance(final TCLStatement tclStatement, final String sql, final BackendConnection backendConnection) {
         if (tclStatement instanceof BeginTransactionStatement) {
             return new TransactionBackendHandler(tclStatement, TransactionOperationType.BEGIN, backendConnection);
         }
@@ -75,6 +73,6 @@ public final class TransactionBackendHandlerFactory {
         if (tclStatement instanceof RollbackStatement) {
             return new TransactionBackendHandler(tclStatement, TransactionOperationType.ROLLBACK, backendConnection);
         }
-        return new BroadcastDatabaseBackendHandler(sqlStatementContext, sql, backendConnection);
+        return new BroadcastDatabaseBackendHandler(tclStatement, sql, backendConnection);
     }
 }

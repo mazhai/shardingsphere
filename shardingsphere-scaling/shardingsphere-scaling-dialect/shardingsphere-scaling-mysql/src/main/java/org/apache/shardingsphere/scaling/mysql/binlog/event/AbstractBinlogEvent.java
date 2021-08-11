@@ -23,8 +23,8 @@ import lombok.Setter;
 /**
  * Abstract binlog event.
  */
-@Getter
 @Setter
+@Getter
 public abstract class AbstractBinlogEvent {
     
     private long serverId;

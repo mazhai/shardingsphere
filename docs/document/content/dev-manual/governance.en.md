@@ -30,4 +30,3 @@ chapter = true
 | PropertiesChangedWatcher         | Properties changed watcher        |
 | PrivilegeNodeChangedWatcher      | Privilege changed watcher         |
 | GlobalRuleChangedWatcher         | Global rule changed watcher       |
-| MetaDataChangedWatcher           | Meta data changed watcher         |

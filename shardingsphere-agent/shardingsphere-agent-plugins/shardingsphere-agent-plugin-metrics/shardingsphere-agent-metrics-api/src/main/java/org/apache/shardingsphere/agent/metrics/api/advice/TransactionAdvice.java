@@ -17,36 +17,34 @@
 
 package org.apache.shardingsphere.agent.metrics.api.advice;
 
-import org.apache.shardingsphere.agent.api.advice.AdviceTargetObject;
+import java.lang.reflect.Method;
 import org.apache.shardingsphere.agent.api.advice.InstanceMethodAroundAdvice;
 import org.apache.shardingsphere.agent.api.result.MethodInvocationResult;
-import org.apache.shardingsphere.agent.metrics.api.MetricsPool;
-import org.apache.shardingsphere.agent.metrics.api.MetricsWrapper;
-import org.apache.shardingsphere.agent.metrics.api.constant.MetricIds;
-
-import java.lang.reflect.Method;
+import org.apache.shardingsphere.agent.api.advice.AdviceTargetObject;
+import org.apache.shardingsphere.agent.metrics.api.reporter.MetricsReporter;
+import org.apache.shardingsphere.agent.metrics.api.constant.MethodNameConstant;
 
 /**
  * Transaction advice.
  */
 public final class TransactionAdvice implements InstanceMethodAroundAdvice {
     
-    public static final String COMMIT = "commit";
+    private static final String COMMIT = "proxy_transaction_commit_total";
     
-    public static final String ROLLBACK = "rollback";
+    private static final String ROLLBACK = "proxy_transaction_rollback_total";
     
     static {
-        MetricsPool.create(MetricIds.TRANSACTION_COMMIT);
-        MetricsPool.create(MetricIds.TRANSACTION_ROLLBACK);
+        MetricsReporter.registerCounter(COMMIT, "the shardingsphere proxy transaction commit count total");
+        MetricsReporter.registerCounter(ROLLBACK, "the shardingsphere proxy transaction rollback count total");
     }
     
     @Override
     public void beforeMethod(final AdviceTargetObject target, final Method method, final Object[] args, final MethodInvocationResult result) {
         String methodName = method.getName();
-        if (COMMIT.equals(methodName)) {
-            MetricsPool.get(MetricIds.TRANSACTION_COMMIT).ifPresent(MetricsWrapper::inc);
-        } else if (ROLLBACK.equals(methodName)) {
-            MetricsPool.get(MetricIds.TRANSACTION_ROLLBACK).ifPresent(MetricsWrapper::inc);
+        if (MethodNameConstant.COMMIT.equals(methodName)) {
+            MetricsReporter.counterIncrement(COMMIT);
+        } else if (MethodNameConstant.ROLL_BACK.equals(methodName)) {
+            MetricsReporter.counterIncrement(ROLLBACK);
         }
     }
 }

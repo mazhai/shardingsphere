@@ -17,10 +17,10 @@
 
 package org.apache.shardingsphere.distsql.parser.statement.rql;
 
-import org.apache.shardingsphere.distsql.parser.statement.DistSQLStatement;
+import org.apache.shardingsphere.sql.parser.sql.common.statement.AbstractSQLStatement;
 
 /**
  * RQL statement.
  */
-public abstract class RQLStatement extends DistSQLStatement {
+public abstract class RQLStatement extends AbstractSQLStatement {
 }

@@ -28,20 +28,16 @@ public final class GovernanceRepositoryConfigurationUtil {
     private static final String ZOOKEEPER_CONNECTION_STRING = "localhost:2181";
     
     public static GovernanceConfiguration getZooKeeperConfiguration(final boolean overwrite, final ShardingType shardingType) {
-        RegistryCenterConfiguration registryCenterConfig;
+        RegistryCenterConfiguration registryCenterConfig = new RegistryCenterConfiguration("ZooKeeper", ZOOKEEPER_CONNECTION_STRING, new Properties());
         switch (shardingType) {
             case SHARDING_DATABASES_AND_TABLES:
-                registryCenterConfig = new RegistryCenterConfiguration("ZooKeeper", "governance-sharding-data-source", ZOOKEEPER_CONNECTION_STRING, new Properties());
-                return new GovernanceConfiguration(registryCenterConfig, overwrite);
+                return new GovernanceConfiguration("governance-sharding-data-source", registryCenterConfig, overwrite);
             case READWRITE_SPLITTING:
-                registryCenterConfig = new RegistryCenterConfiguration("ZooKeeper", "governance-readwrite-splitting-data-source", ZOOKEEPER_CONNECTION_STRING, new Properties());
-                return new GovernanceConfiguration(registryCenterConfig, overwrite);
+                return new GovernanceConfiguration("governance-readwrite-splitting-data-source", registryCenterConfig, overwrite);
             case ENCRYPT:
-                registryCenterConfig = new RegistryCenterConfiguration("ZooKeeper", "governance-encrypt-data-source", ZOOKEEPER_CONNECTION_STRING, new Properties());
-                return new GovernanceConfiguration(registryCenterConfig, overwrite);
+                return new GovernanceConfiguration("governance-encrypt-data-source", registryCenterConfig, overwrite);
             case SHADOW:
-                registryCenterConfig = new RegistryCenterConfiguration("ZooKeeper", "governance-shadow-data-source", ZOOKEEPER_CONNECTION_STRING, new Properties());
-                return new GovernanceConfiguration(registryCenterConfig, overwrite);
+                return new GovernanceConfiguration("governance-shadow-data-source", registryCenterConfig, overwrite);
             default:
                 throw new UnsupportedOperationException(shardingType.toString());
         }

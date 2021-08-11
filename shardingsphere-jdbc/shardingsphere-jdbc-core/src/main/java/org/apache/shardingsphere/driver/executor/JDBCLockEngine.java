@@ -19,6 +19,7 @@ package org.apache.shardingsphere.driver.executor;
 
 import org.apache.shardingsphere.infra.binder.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.context.metadata.MetaDataContexts;
+import org.apache.shardingsphere.infra.database.DefaultSchema;
 import org.apache.shardingsphere.infra.executor.kernel.model.ExecutionGroupContext;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutionUnit;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutor;
@@ -43,8 +44,6 @@ import java.util.stream.Collectors;
  */
 public final class JDBCLockEngine {
     
-    private final String schemaName;
-    
     private final MetaDataContexts metaDataContexts;
     
     private final JDBCExecutor jdbcExecutor;
@@ -53,12 +52,11 @@ public final class JDBCLockEngine {
     
     private final Collection<String> lockNames = new ArrayList<>();
     
-    public JDBCLockEngine(final String schemaName, final MetaDataContexts metaDataContexts, final JDBCExecutor jdbcExecutor) {
-        this.schemaName = schemaName;
+    public JDBCLockEngine(final MetaDataContexts metaDataContexts, final JDBCExecutor jdbcExecutor) {
         this.metaDataContexts = metaDataContexts;
         this.jdbcExecutor = jdbcExecutor;
-        metadataRefreshEngine = new MetadataRefreshEngine(metaDataContexts.getMetaData(schemaName),
-                metaDataContexts.getOptimizeContextFactory().getSchemaMetadatas().getSchemaMetadataBySchemaName(schemaName), metaDataContexts.getProps());
+        metadataRefreshEngine = new MetadataRefreshEngine(metaDataContexts.getDefaultMetaData(), 
+                metaDataContexts.getOptimizeContextFactory().getSchemaMetadatas().getDefaultSchemaMetadata(), metaDataContexts.getProps(), metaDataContexts.getLock().orElse(null));
     }
     
     /**
@@ -95,7 +93,7 @@ public final class JDBCLockEngine {
     
     private void tryTableLock(final ShardingSphereLock lock, final Collection<String> tableNames) throws SQLException {
         for (String each : tableNames) {
-            String lockName = LockNameUtil.getTableLockName(schemaName, each);
+            String lockName = LockNameUtil.getTableLockName(DefaultSchema.LOGIC_NAME, each);
             if (!lock.tryLock(lockName)) {
                 throw new SQLException(String.format("Table %s lock wait timeout of %s ms exceeded", each, lock.getDefaultTimeOut()));
             }
@@ -105,7 +103,7 @@ public final class JDBCLockEngine {
     
     private void checkTableLock(final ShardingSphereLock lock, final Collection<String> tableNames) throws SQLException {
         for (String each : tableNames) {
-            if (lock.isLocked(LockNameUtil.getTableLockName(schemaName, each))) {
+            if (lock.isLocked(LockNameUtil.getTableLockName(DefaultSchema.LOGIC_NAME, each))) {
                 throw new SQLException(String.format("Table %s is locked", each));
             }
         }

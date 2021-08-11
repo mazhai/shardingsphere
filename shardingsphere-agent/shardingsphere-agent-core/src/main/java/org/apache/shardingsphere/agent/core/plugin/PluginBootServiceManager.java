@@ -27,7 +27,6 @@ import org.apache.shardingsphere.agent.core.spi.AgentTypedSPIRegistry;
 import org.apache.shardingsphere.agent.spi.boot.PluginBootService;
 
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -44,7 +43,7 @@ public final class PluginBootServiceManager {
      */
     public static void startAllServices(final Map<String, PluginConfiguration> pluginConfigurationMap) {
         Set<String> ignoredPluginNames = AgentConfigurationRegistry.INSTANCE.get(AgentConfiguration.class).getIgnoredPluginNames();
-        for (Entry<String, PluginConfiguration> entry: pluginConfigurationMap.entrySet()) {
+        for (Map.Entry<String, PluginConfiguration> entry: pluginConfigurationMap.entrySet()) {
             AgentTypedSPIRegistry.getRegisteredServiceOptional(PluginBootService.class, entry.getKey()).ifPresent(pluginBootService -> {
                 try {
                     if (!ignoredPluginNames.isEmpty() && ignoredPluginNames.contains(pluginBootService.getType())) {
@@ -54,7 +53,7 @@ public final class PluginBootServiceManager {
                     // CHECKSTYLE:OFF
                 } catch (final Throwable ex) {
                     // CHECKSTYLE:ON
-                    log.error("Failed to start service", ex);
+                    log.error("Failed to start service.", ex);
                 }
             });
         }
@@ -70,7 +69,7 @@ public final class PluginBootServiceManager {
                 // CHECKSTYLE:OFF
             } catch (final Throwable ex) {
                 // CHECKSTYLE:ON
-                log.error("Failed to close service", ex);
+                log.error("Failed to close service.", ex);
             }
         });
     }

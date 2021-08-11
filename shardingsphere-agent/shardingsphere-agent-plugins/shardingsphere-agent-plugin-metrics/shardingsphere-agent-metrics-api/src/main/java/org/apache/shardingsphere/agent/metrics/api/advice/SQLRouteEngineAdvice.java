@@ -17,12 +17,12 @@
 
 package org.apache.shardingsphere.agent.metrics.api.advice;
 
-import org.apache.shardingsphere.agent.api.advice.AdviceTargetObject;
+import java.lang.reflect.Method;
+import java.util.Collection;
 import org.apache.shardingsphere.agent.api.advice.InstanceMethodAroundAdvice;
 import org.apache.shardingsphere.agent.api.result.MethodInvocationResult;
-import org.apache.shardingsphere.agent.metrics.api.MetricsPool;
-import org.apache.shardingsphere.agent.metrics.api.MetricsWrapper;
-import org.apache.shardingsphere.agent.metrics.api.constant.MetricIds;
+import org.apache.shardingsphere.agent.api.advice.AdviceTargetObject;
+import org.apache.shardingsphere.agent.metrics.api.reporter.MetricsReporter;
 import org.apache.shardingsphere.infra.binder.LogicSQL;
 import org.apache.shardingsphere.infra.route.context.RouteContext;
 import org.apache.shardingsphere.infra.route.context.RouteMapper;
@@ -33,21 +33,30 @@ import org.apache.shardingsphere.sql.parser.sql.common.statement.dml.InsertState
 import org.apache.shardingsphere.sql.parser.sql.common.statement.dml.SelectStatement;
 import org.apache.shardingsphere.sql.parser.sql.common.statement.dml.UpdateStatement;
 
-import java.lang.reflect.Method;
-import java.util.Collection;
-
 /**
  * SQL route engine advice.
  */
 public final class SQLRouteEngineAdvice implements InstanceMethodAroundAdvice {
     
+    private static final String SELECT = "sql_select_total";
+    
+    private static final String UPDATE = "sql_update_total";
+    
+    private static final String DELETE = "sql_delete_total";
+    
+    private static final String INSERT = "sql_insert_total";
+    
+    private static final String ROUTE_DATASOURCE = "route_datasource";
+    
+    private static final String ROUTE_TABLE = "route_table";
+    
     static {
-        MetricsPool.create(MetricIds.ROUTE_SQL_INSERT);
-        MetricsPool.create(MetricIds.ROUTE_SQL_DELETE);
-        MetricsPool.create(MetricIds.ROUTE_SQL_UPDATE);
-        MetricsPool.create(MetricIds.ROUTE_SQL_SELECT);
-        MetricsPool.create(MetricIds.ROUTE_DATASOURCE);
-        MetricsPool.create(MetricIds.ROUTE_TABLE);
+        MetricsReporter.registerCounter(SELECT, "the shardingsphere proxy executor select sql total");
+        MetricsReporter.registerCounter(UPDATE, "the shardingsphere proxy executor update sql total");
+        MetricsReporter.registerCounter(DELETE, "the shardingsphere proxy executor delete sql total");
+        MetricsReporter.registerCounter(INSERT, "the shardingsphere proxy executor insert sql total");
+        MetricsReporter.registerCounter(ROUTE_DATASOURCE, new String[] {"name"}, "the shardingsphere proxy route datasource");
+        MetricsReporter.registerCounter(ROUTE_TABLE, new String[] {"name"}, "the shardingsphere proxy route table");
     }
     
     @Override
@@ -55,13 +64,13 @@ public final class SQLRouteEngineAdvice implements InstanceMethodAroundAdvice {
         LogicSQL logicSQL = (LogicSQL) args[0];
         SQLStatement sqlStatement = logicSQL.getSqlStatementContext().getSqlStatement();
         if (sqlStatement instanceof InsertStatement) {
-            MetricsPool.get(MetricIds.ROUTE_SQL_INSERT).ifPresent(MetricsWrapper::inc);
+            MetricsReporter.counterIncrement(INSERT);
         } else if (sqlStatement instanceof DeleteStatement) {
-            MetricsPool.get(MetricIds.ROUTE_SQL_DELETE).ifPresent(MetricsWrapper::inc);
+            MetricsReporter.counterIncrement(DELETE);
         } else if (sqlStatement instanceof UpdateStatement) {
-            MetricsPool.get(MetricIds.ROUTE_SQL_UPDATE).ifPresent(MetricsWrapper::inc);
+            MetricsReporter.counterIncrement(UPDATE);
         } else if (sqlStatement instanceof SelectStatement) {
-            MetricsPool.get(MetricIds.ROUTE_SQL_SELECT).ifPresent(MetricsWrapper::inc);
+            MetricsReporter.counterIncrement(SELECT);
         }
     }
 
@@ -72,11 +81,8 @@ public final class SQLRouteEngineAdvice implements InstanceMethodAroundAdvice {
             Collection<RouteUnit> routeUnits = routeContext.getRouteUnits();
             routeUnits.forEach(each -> {
                 RouteMapper dataSourceMapper = each.getDataSourceMapper();
-                MetricsPool.get(MetricIds.ROUTE_DATASOURCE)
-                        .ifPresent(m -> m.inc(new String[]{dataSourceMapper.getActualName()}));
-                each.getTableMappers()
-                        .forEach(table -> MetricsPool.get(MetricIds.ROUTE_TABLE)
-                                .ifPresent(m -> m.inc(new String[]{table.getActualName()})));
+                MetricsReporter.counterIncrement(ROUTE_DATASOURCE, new String[]{dataSourceMapper.getActualName()});
+                each.getTableMappers().forEach(table -> MetricsReporter.counterIncrement(ROUTE_TABLE, new String[]{table.getActualName()}));
             });
         }
     }

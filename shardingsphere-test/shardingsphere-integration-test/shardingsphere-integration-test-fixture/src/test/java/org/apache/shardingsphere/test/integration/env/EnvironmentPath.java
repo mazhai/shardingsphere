@@ -76,18 +76,6 @@ public final class EnvironmentPath {
     }
     
     /**
-     * Get init SQL file.
-     *
-     * @param databaseType database type
-     * @param scenario scenario
-     * @param fileName file name
-     * @return init SQL file
-     */
-    public static String getInitSQLFile(final DatabaseType databaseType, final String scenario, final String fileName) {
-        return getFile(databaseType, scenario, fileName);
-    }
-    
-    /**
      * Get data set file.
      *
      * @param scenario scenario
@@ -125,25 +113,9 @@ public final class EnvironmentPath {
     }
     
     private static String getFile(final DatabaseType databaseType, final String scenario, final String fileName) {
-        String path = getPath(databaseType, scenario, fileName);
+        String path = String.join("/", ROOT_PATH, scenario, "init-sql", databaseType.getName().toLowerCase(), fileName);
         URL url = EnvironmentPath.class.getClassLoader().getResource(path);
         assertNotNull(String.format("File `%s` must exist.", path), url);
         return url.getFile();
-    }
-    
-    private static String getPath(final DatabaseType databaseType, final String scenario, final String fileName) {
-        return String.join("/", ROOT_PATH, scenario, "init-sql", databaseType.getName().toLowerCase(), fileName);
-    }
-    
-    /**
-     * check SQL file exist.
-     * 
-     * @param databaseType database type
-     * @param scenario scenario
-     * @param fileName file name
-     * @return weather SQL file exist or not
-     */
-    public static boolean checkSQLFileExist(final DatabaseType databaseType, final String scenario, final String fileName) {
-        return null != EnvironmentPath.class.getClassLoader().getResource(getPath(databaseType, scenario, fileName));
     }
 }

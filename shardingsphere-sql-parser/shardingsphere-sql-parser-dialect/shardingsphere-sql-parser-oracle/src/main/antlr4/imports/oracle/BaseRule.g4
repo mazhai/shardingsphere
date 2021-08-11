@@ -96,7 +96,7 @@ unreservedWord
     | BECOME | CHANGE | NOTIFICATION | PRIVILEGE | PURGE | RESUMABLE
     | SYSGUID | SYSBACKUP | SYSDBA | SYSDG | SYSKM | SYSOPER | DBA_RECYCLEBIN |SCHEMA
     | DO | DEFINER | CURRENT_USER | CASCADED | CLOSE | OPEN | NEXT | NAME | NAMES
-    | COLLATION | REAL | TYPE | FIRST | RANK | SAMPLE
+    | COLLATION | REAL | TYPE | FIRST
     ;
 
 schemaName
@@ -108,10 +108,6 @@ tableName
     ;
 
 viewName
-    : (owner DOT_)? name
-    ;
-
-materializedViewName
     : (owner DOT_)? name
     ;
 
@@ -128,35 +124,7 @@ clusterName
     ;
 
 indexName
-    : (owner DOT_)? name
-    ;
-
-statisticsTypeName
-    : (owner DOT_)? name
-    ;
-
-function
-    : (owner DOT_)? name
-    ;
-
-packageName
-    : (owner DOT_)? name
-    ;
-
-typeName
-    : (owner DOT_)? name
-    ;
-
-indexTypeName
-    : (owner DOT_)? name
-    ;
-
-modelName
-    : (owner DOT_)? name
-    ;
-
-operatorName
-    : (owner DOT_)? name
+    : identifier
     ;
 
 constraintName
@@ -195,10 +163,6 @@ ilmPolicyName
     : identifier
     ;
 
-policyName
-    : identifier
-    ;
-
 functionName
     : identifier
     ;
@@ -228,6 +192,10 @@ opaqueFormatSpec
     ;
 
 accessDriverType
+    : identifier
+    ;
+
+type
     : identifier
     ;
 
@@ -284,11 +252,7 @@ partitionSetName
     ;
 
 partitionKeyValue
-    : INTEGER_ | dateTimeLiterals
-    ;
-
-subpartitionKeyValue
-    : INTEGER_ | dateTimeLiterals
+    : NUMBER_ | dateTimeLiterals
     ;
 
 zonemapName
@@ -300,10 +264,6 @@ flashbackArchiveName
     ;
 
 roleName
-    : identifier
-    ;
-
-userName
     : identifier
     ;
 
@@ -324,7 +284,7 @@ tableNames
     ;
 
 oracleId
-    : identifier | (STRING_ DOT_)* STRING_
+    : IDENTIFIER_ | (STRING_ DOT_)* STRING_
     ;
 
 collationName
@@ -429,7 +389,7 @@ aggregationFunction
     ;
 
 aggregationFunctionName
-    : MAX | MIN | SUM | COUNT | AVG | GROUPING
+    : MAX | MIN | SUM | COUNT | AVG
     ;
 
 distinct
@@ -453,7 +413,7 @@ regularFunction
     ;
 
 regularFunctionName
-    : identifier | IF | LOCALTIME | LOCALTIMESTAMP | INTERVAL | DECODE
+    : identifier | IF | LOCALTIME | LOCALTIMESTAMP | INTERVAL
     ;
 
 caseExpression
@@ -482,6 +442,10 @@ orderByItem
 
 attributeName
     : oracleId
+    ;
+
+indexTypeName
+    : IDENTIFIER_
     ;
 
 simpleExprs
@@ -762,68 +726,4 @@ unitName
 
 procedureName
     : identifier
-    ;
-
-cpuCost
-    : INTEGER_
-    ;
-
-ioCost
-    : INTEGER_
-    ;
-
-networkCost
-    : INTEGER_
-    ;
-
-defaultSelectivity
-    : INTEGER_
-    ;
-
-dataItem
-    : variableName
-    ;
-
-variableName
-    : identifier | stringLiterals
-    ;
-
-validTimeColumn
-    : columnName
-    ;
-
-attrDim
-    : identifier
-    ;
-
-hierarchyName
-    : (owner DOT_)? name
-    ;
-
-analyticViewName
-    : (owner DOT_)? name
-    ;
-
-samplePercent
-    : numberLiterals
-    ;
-
-seedValue
-    : numberLiterals
-    ;
-
-namespace
-    : identifier
-    ;
-
-restorePoint
-    : identifier
-    ;
-
-scnValue
-    : literals
-    ;
-
-scnTimestampExpr
-    : scnValue | identifier
     ;

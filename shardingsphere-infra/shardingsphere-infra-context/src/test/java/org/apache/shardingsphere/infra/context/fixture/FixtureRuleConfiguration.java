@@ -18,7 +18,6 @@
 package org.apache.shardingsphere.infra.context.fixture;
 
 import org.apache.shardingsphere.infra.config.RuleConfiguration;
-import org.apache.shardingsphere.infra.config.function.EnhancedRuleConfiguration;
 
-public final class FixtureRuleConfiguration implements RuleConfiguration, EnhancedRuleConfiguration {
+public final class FixtureRuleConfiguration implements RuleConfiguration {
 }

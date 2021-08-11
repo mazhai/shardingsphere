@@ -21,9 +21,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@RequiredArgsConstructor
-@Getter
 @Setter
+@Getter
+@RequiredArgsConstructor
 public final class BetweenExpression implements ExpressionSegment {
     
     private final int startIndex;

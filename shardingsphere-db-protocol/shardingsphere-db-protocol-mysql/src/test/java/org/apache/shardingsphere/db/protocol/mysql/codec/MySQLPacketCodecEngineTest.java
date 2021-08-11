@@ -61,20 +61,18 @@ public final class MySQLPacketCodecEngineTest {
     public void assertDecode() {
         when(byteBuf.markReaderIndex()).thenReturn(byteBuf);
         when(byteBuf.readMediumLE()).thenReturn(50);
-        when(byteBuf.readableBytes()).thenReturn(51);
         when(byteBuf.readRetainedSlice(51)).thenReturn(byteBuf);
         List<Object> out = new LinkedList<>();
-        new MySQLPacketCodecEngine().decode(context, byteBuf, out);
+        new MySQLPacketCodecEngine().decode(context, byteBuf, out, 54);
         assertThat(out.size(), is(1));
     }
 
     @Test
     public void assertDecodeWithEmptyPacket() {
         when(byteBuf.markReaderIndex()).thenReturn(byteBuf);
-        when(byteBuf.readableBytes()).thenReturn(1);
         when(byteBuf.readMediumLE()).thenReturn(0);
         List<Object> out = new LinkedList<>();
-        new MySQLPacketCodecEngine().decode(context, byteBuf, out);
+        new MySQLPacketCodecEngine().decode(context, byteBuf, out, 4);
         assertThat(out.size(), is(1));
     }
 
@@ -83,7 +81,7 @@ public final class MySQLPacketCodecEngineTest {
         when(byteBuf.markReaderIndex()).thenReturn(byteBuf);
         when(byteBuf.readMediumLE()).thenReturn(50);
         List<Object> out = new LinkedList<>();
-        new MySQLPacketCodecEngine().decode(context, byteBuf, out);
+        new MySQLPacketCodecEngine().decode(context, byteBuf, out, 40);
         assertTrue(out.isEmpty());
     }
     

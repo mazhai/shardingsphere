@@ -17,14 +17,18 @@
 
 package org.apache.shardingsphere.agent.metrics.api.advice;
 
-import org.apache.shardingsphere.agent.metrics.api.MetricsPool;
-import org.apache.shardingsphere.agent.metrics.api.fixture.FixtureWrapperFactory;
+import lombok.Getter;
+import org.apache.shardingsphere.agent.metrics.api.fixture.FixtureMetricsRegister;
+import org.apache.shardingsphere.agent.metrics.api.reporter.MetricsReporter;
 import org.junit.BeforeClass;
 
 public abstract class MetricsAdviceBaseTest {
     
+    @Getter
+    private static FixtureMetricsRegister fixturemetricsregister = new FixtureMetricsRegister();
+    
     @BeforeClass
     public static void setup() {
-        MetricsPool.setMetricsFactory(new FixtureWrapperFactory());
+        MetricsReporter.register(fixturemetricsregister);
     }
 }

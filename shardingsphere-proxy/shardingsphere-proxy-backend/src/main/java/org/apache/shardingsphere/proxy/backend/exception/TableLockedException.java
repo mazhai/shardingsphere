@@ -17,13 +17,13 @@
 
 package org.apache.shardingsphere.proxy.backend.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Table locked exception.
  */
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Getter
 public final class TableLockedException extends BackendException {
     

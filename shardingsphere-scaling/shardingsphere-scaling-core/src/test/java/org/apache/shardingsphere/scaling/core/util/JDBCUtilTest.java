@@ -19,14 +19,13 @@ package org.apache.shardingsphere.scaling.core.util;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.shardingsphere.infra.config.datasource.DataSourceConfiguration;
-import org.apache.shardingsphere.infra.yaml.config.swapper.YamlDataSourceConfigurationSwapper;
+import org.apache.shardingsphere.infra.yaml.swapper.YamlDataSourceConfigurationSwapper;
 import org.apache.shardingsphere.scaling.core.config.datasource.ShardingSphereJDBCDataSourceConfiguration;
 import org.apache.shardingsphere.scaling.core.config.datasource.StandardJDBCDataSourceConfiguration;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -43,14 +42,14 @@ public final class JDBCUtilTest {
     
     @Test
     public void assertAppendShardingSphereJDBCDataSourceConfig() {
-        ShardingSphereJDBCDataSourceConfiguration dataSourceConfig = new ShardingSphereJDBCDataSourceConfiguration(getDataSourceYaml(), "");
+        ShardingSphereJDBCDataSourceConfiguration dataSourceConfig = new ShardingSphereJDBCDataSourceConfiguration(mockDataSource(), "");
         JDBCUtil.appendJDBCParameter(dataSourceConfig, ImmutableMap.<String, String>builder().put("rewriteBatchedStatements", "true").build());
-        List<DataSourceConfiguration> actual = new ArrayList<>(getDataSourceConfigurations(dataSourceConfig.getRootRuleConfigs().getDataSources()).values());
+        ArrayList<DataSourceConfiguration> actual = new ArrayList<>(getDataSourceConfigurations(dataSourceConfig.getRootRuleConfigs().getDataSources()).values());
         assertThat(actual.get(0).getProps().get("url"), is("jdbc:mysql://192.168.0.2:3306/scaling?rewriteBatchedStatements=true&serverTimezone=UTC&useSSL=false"));
         assertThat(actual.get(1).getProps().get("url"), is("jdbc:mysql://192.168.0.1:3306/scaling?rewriteBatchedStatements=true&serverTimezone=UTC&useSSL=false"));
     }
     
-    private String getDataSourceYaml() {
+    private String mockDataSource() {
         return "dataSources:\n"
                 + "  ds_1:\n"
                 + "    dataSourceClassName: com.zaxxer.hikari.HikariDataSource\n"

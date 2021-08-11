@@ -27,8 +27,8 @@ import java.util.Set;
 /**
  * Importer configuration.
  */
-@Getter
 @Setter
+@Getter
 public final class ImporterConfiguration {
     
     private ScalingDataSourceConfiguration dataSourceConfig;

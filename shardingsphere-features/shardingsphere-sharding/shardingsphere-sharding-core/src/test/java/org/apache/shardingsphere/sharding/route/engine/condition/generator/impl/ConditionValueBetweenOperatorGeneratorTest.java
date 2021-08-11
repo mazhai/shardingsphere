@@ -17,8 +17,8 @@
 
 package org.apache.shardingsphere.sharding.route.engine.condition.generator.impl;
 
-import org.apache.shardingsphere.infra.spi.ShardingSphereServiceLoader;
 import org.apache.shardingsphere.infra.datetime.DatetimeService;
+import org.apache.shardingsphere.infra.spi.ShardingSphereServiceLoader;
 import org.apache.shardingsphere.sharding.route.engine.condition.Column;
 import org.apache.shardingsphere.sharding.route.engine.condition.value.RangeShardingConditionValue;
 import org.apache.shardingsphere.sharding.route.engine.condition.value.ShardingConditionValue;
@@ -39,15 +39,15 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public final class ConditionValueBetweenOperatorGeneratorTest {
-    
+
     private final ConditionValueBetweenOperatorGenerator generator = new ConditionValueBetweenOperatorGenerator();
-    
+
     private final Column column = new Column("id", "tbl");
-    
+
     static {
         ShardingSphereServiceLoader.register(DatetimeService.class);
     }
-    
+
     @SuppressWarnings("unchecked")
     @Test
     public void assertGenerateConditionValue() {
@@ -64,7 +64,7 @@ public final class ConditionValueBetweenOperatorGeneratorTest {
         assertTrue(rangeShardingConditionValue.getValueRange().contains(between));
         assertTrue(rangeShardingConditionValue.getValueRange().contains(and));
     }
-    
+
     @SuppressWarnings("unchecked")
     @Test
     public void assertGenerateConditionValueWithDifferentNumericType() {
@@ -81,7 +81,7 @@ public final class ConditionValueBetweenOperatorGeneratorTest {
         assertTrue(SafeNumberOperationUtil.safeContains(rangeShardingConditionValue.getValueRange(), between));
         assertTrue(SafeNumberOperationUtil.safeContains(rangeShardingConditionValue.getValueRange(), and));
     }
-    
+
     @Test(expected = ClassCastException.class)
     public void assertGenerateErrorConditionValue() {
         int between = 1;
@@ -90,7 +90,7 @@ public final class ConditionValueBetweenOperatorGeneratorTest {
         BetweenExpression value = new BetweenExpression(0, 0, null, betweenSegment, andSegment, false);
         generator.generate(value, column, new LinkedList<>());
     }
-    
+
     @SuppressWarnings("unchecked")
     @Test
     public void assertGenerateOneNowConditionValue() {
@@ -105,7 +105,7 @@ public final class ConditionValueBetweenOperatorGeneratorTest {
         assertThat(rangeShardingConditionValue.getTableName(), is(column.getTableName()));
         assertThat(rangeShardingConditionValue.getValueRange().lowerEndpoint(), is(date));
     }
-    
+
     @SuppressWarnings("unchecked")
     @Test
     public void assertGenerateNowConditionValue() {

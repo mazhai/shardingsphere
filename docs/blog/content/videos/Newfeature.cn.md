@@ -1,6 +1,6 @@
 +++
 title = "Apache ShardingSphere 5.x 的新功能"
-weight = 7
+weight = 6
 chapter = true
 +++
 

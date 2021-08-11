@@ -20,7 +20,7 @@ package org.apache.shardingsphere.distsql.parser.statement.rdl.create;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.distsql.parser.segment.DataSourceSegment;
-import org.apache.shardingsphere.distsql.parser.statement.rdl.ResourceDefinitionStatement;
+import org.apache.shardingsphere.distsql.parser.statement.rdl.RDLStatement;
 
 import java.util.Collection;
 
@@ -29,7 +29,7 @@ import java.util.Collection;
  */
 @RequiredArgsConstructor
 @Getter
-public final class AddResourceStatement extends ResourceDefinitionStatement {
+public final class AddResourceStatement extends RDLStatement {
     
     private final Collection<DataSourceSegment> dataSources;
 }

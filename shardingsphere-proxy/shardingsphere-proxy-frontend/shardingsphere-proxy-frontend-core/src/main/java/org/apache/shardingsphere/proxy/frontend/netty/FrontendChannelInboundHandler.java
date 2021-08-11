@@ -94,7 +94,8 @@ public final class FrontendChannelInboundHandler extends ChannelInboundHandlerAd
     private void closeAllResources() {
         ConnectionThreadExecutorGroup.getInstance().unregisterAndAwaitTermination(backendConnection.getConnectionId());
         PrimaryVisitedManager.clear();
-        backendConnection.closeDatabaseCommunicationEngines(true);
+        backendConnection.closeResultSets();
+        backendConnection.closeStatements();
         backendConnection.closeConnections(true);
         backendConnection.closeFederateExecutor();
         databaseProtocolFrontendEngine.release(backendConnection);

@@ -41,12 +41,12 @@ import java.util.LinkedList;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SubqueryExtractUtil {
-    
+
     /**
      * Get subquery segment from SelectStatement.
      *
-     * @param selectStatement SelectStatement
-     * @return subquery segment collection
+     * @param selectStatement SelectStatement.
+     * @return subquery segment collection.
      */
     public static Collection<SubquerySegment> getSubquerySegments(final SelectStatement selectStatement) {
         Collection<SubquerySegment> result = new LinkedList<>();
@@ -71,7 +71,7 @@ public final class SubqueryExtractUtil {
         }
         return result;
     }
-    
+
     private static Collection<SubquerySegment> getSubquerySegmentsFromTableSegment(final TableSegment tableSegment) {
         if (null == tableSegment) {
             return Collections.emptyList();
@@ -86,7 +86,7 @@ public final class SubqueryExtractUtil {
         }
         return result;
     }
-    
+
     private static Collection<SubquerySegment> getSubquerySegmentsFromExpression(final ExpressionSegment expressionSegment) {
         Collection<SubquerySegment> result = new LinkedList<>();
         if (expressionSegment instanceof SubqueryExpressionSegment) {

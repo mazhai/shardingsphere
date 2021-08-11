@@ -105,7 +105,7 @@ Be the same as sharding based on hint.
 
 #### Configure Primary Database Route
 
-- Use `hintManager.setWriteRouteOnly` to configure primary database route.
+- Use `hintManager.setPrimaryRouteOnly` to configure primary database route.
 
 #### Clean Hint Value
 
@@ -115,10 +115,11 @@ Be the same as data sharding based on hint.
 
 ```java
 String sql = "SELECT * FROM t_order";
-try (HintManager hintManager = HintManager.getInstance();
-     Connection conn = dataSource.getConnection();
-     PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
-    hintManager.setWriteRouteOnly();
+try (
+        HintManager hintManager = HintManager.getInstance();
+        Connection conn = dataSource.getConnection();
+        PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+    hintManager.setPrimaryRouteOnly();
     try (ResultSet rs = preparedStatement.executeQuery()) {
         while (rs.next()) {
             // ...

@@ -18,7 +18,7 @@
 package org.apache.shardingsphere.governance.core.registry.cache.subscriber;
 
 import org.apache.shardingsphere.governance.core.registry.cache.RegistryCacheManager;
-import org.apache.shardingsphere.infra.persist.service.impl.SchemaRulePersistService;
+import org.apache.shardingsphere.governance.core.registry.config.service.impl.SchemaRuleRegistryService;
 import org.apache.shardingsphere.governance.repository.spi.RegistryCenterRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,10 +32,10 @@ import java.lang.reflect.Field;
 public final class ScalingRegistrySubscriberTest {
     
     @Mock
-    private RegistryCenterRepository repository;
+    private RegistryCenterRepository registryCenterRepository;
     
     @Mock
-    private SchemaRulePersistService persistService;
+    private SchemaRuleRegistryService schemaRuleService;
     
     @Mock
     private RegistryCacheManager registryCacheManager;
@@ -44,17 +44,14 @@ public final class ScalingRegistrySubscriberTest {
     
     @Before
     public void setUp() throws ReflectiveOperationException {
-        scalingRegistrySubscriber = new ScalingRegistrySubscriber(repository);
-        Field persistServiceField = ScalingRegistrySubscriber.class.getDeclaredField("persistService");
-        persistServiceField.setAccessible(true);
-        persistServiceField.set(scalingRegistrySubscriber, persistService);
-        Field registryCacheManagerField = ScalingRegistrySubscriber.class.getDeclaredField("registryCacheManager");
-        registryCacheManagerField.setAccessible(true);
-        registryCacheManagerField.set(scalingRegistrySubscriber, registryCacheManager);
+        scalingRegistrySubscriber = new ScalingRegistrySubscriber(registryCenterRepository, schemaRuleService);
     }
     
     @Test
     public void assertSwitchRuleConfiguration() throws ReflectiveOperationException {
+        Field field = ScalingRegistrySubscriber.class.getDeclaredField("registryCacheManager");
+        field.setAccessible(true);
+        field.set(scalingRegistrySubscriber, registryCacheManager);
         // Move to scaling module
 //        when(registryCacheManager.loadCache(anyString(), eq("testCacheId"))).thenReturn(readYAML());
 //        SwitchRuleConfigurationEvent event = new SwitchRuleConfigurationEvent("sharding_db", "testCacheId");
@@ -70,6 +67,6 @@ public final class ScalingRegistrySubscriberTest {
 //    @SneakyThrows({IOException.class, URISyntaxException.class})
 //    private String readYAML() {
 //        return Files.readAllLines(Paths.get(ClassLoader.getSystemResource("yaml/regcenter/data-schema-rule.yaml").toURI()))
-//                .stream().map(each -> each + System.lineSeparator()).collect(Collectors.joining());
+//                .stream().filter(each -> !each.startsWith("#")).map(each -> each + System.lineSeparator()).collect(Collectors.joining());
 //    }
 }

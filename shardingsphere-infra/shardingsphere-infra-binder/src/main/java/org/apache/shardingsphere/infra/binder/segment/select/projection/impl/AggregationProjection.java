@@ -24,6 +24,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.shardingsphere.infra.binder.segment.select.projection.Projection;
 import org.apache.shardingsphere.sql.parser.sql.common.constant.AggregationType;
+import org.apache.shardingsphere.sql.parser.sql.common.util.SQLUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,7 @@ public class AggregationProjection implements Projection {
     
     @Override
     public final String getExpression() {
-        return type.name() + innerExpression;
+        return SQLUtil.getExactlyValue(type.name() + innerExpression);
     }
     
     @Override

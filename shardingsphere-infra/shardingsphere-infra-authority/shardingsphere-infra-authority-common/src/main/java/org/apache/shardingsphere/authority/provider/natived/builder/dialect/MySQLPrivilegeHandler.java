@@ -173,7 +173,8 @@ public final class MySQLPrivilegeHandler implements StoragePrivilegeHandler {
 
     private String getGlobalPrivilegesSQL(final Collection<ShardingSphereUser> users) {
         String userHostTuples = users.stream().map(each -> String.format("('%s', '%s')", each.getGrantee().getUsername(), each.getGrantee().getHostname())).collect(Collectors.joining(", "));
-        return String.format(GLOBAL_PRIVILEGE_SQL, userHostTuples);
+        String sql = String.format(GLOBAL_PRIVILEGE_SQL, userHostTuples);
+        return sql;
     }
 
     private String getSchemaPrivilegesSQL(final Collection<ShardingSphereUser> users) {

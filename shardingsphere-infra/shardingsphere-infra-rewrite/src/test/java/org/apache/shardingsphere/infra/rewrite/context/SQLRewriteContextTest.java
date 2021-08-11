@@ -17,15 +17,16 @@
 
 package org.apache.shardingsphere.infra.rewrite.context;
 
-import org.apache.shardingsphere.infra.binder.statement.SQLStatementContext;
-import org.apache.shardingsphere.infra.binder.statement.dml.InsertStatementContext;
-import org.apache.shardingsphere.infra.binder.statement.dml.SelectStatementContext;
-import org.apache.shardingsphere.infra.metadata.schema.ShardingSphereSchema;
+import com.google.common.collect.Lists;
 import org.apache.shardingsphere.infra.rewrite.parameter.builder.impl.GroupedParameterBuilder;
 import org.apache.shardingsphere.infra.rewrite.parameter.builder.impl.StandardParameterBuilder;
 import org.apache.shardingsphere.infra.rewrite.sql.token.generator.CollectionSQLTokenGenerator;
 import org.apache.shardingsphere.infra.rewrite.sql.token.generator.OptionalSQLTokenGenerator;
 import org.apache.shardingsphere.infra.rewrite.sql.token.pojo.SQLToken;
+import org.apache.shardingsphere.infra.metadata.schema.ShardingSphereSchema;
+import org.apache.shardingsphere.infra.binder.statement.SQLStatementContext;
+import org.apache.shardingsphere.infra.binder.statement.dml.InsertStatementContext;
+import org.apache.shardingsphere.infra.binder.statement.dml.SelectStatementContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,7 +63,7 @@ public final class SQLRewriteContextTest {
     public void setUp() {
         when(optionalSQLTokenGenerator.generateSQLToken(sqlStatementContext)).thenReturn(sqlToken);
         when(optionalSQLTokenGenerator.isGenerateSQLToken(sqlStatementContext)).thenReturn(true);
-        when(collectionSQLTokenGenerator.generateSQLTokens(sqlStatementContext)).thenReturn(Collections.singleton(sqlToken));
+        when(collectionSQLTokenGenerator.generateSQLTokens(sqlStatementContext)).thenReturn(Lists.newArrayList(sqlToken));
         when(collectionSQLTokenGenerator.isGenerateSQLToken(sqlStatementContext)).thenReturn(true);
     }
     
@@ -83,7 +84,7 @@ public final class SQLRewriteContextTest {
     @Test
     public void assertGenerateOptionalSQLToken() {
         SQLRewriteContext sqlRewriteContext = new SQLRewriteContext(schema, sqlStatementContext, "INSERT INTO tbl VALUES (?)", Collections.singletonList(1));
-        sqlRewriteContext.addSQLTokenGenerators(Collections.singleton(optionalSQLTokenGenerator));
+        sqlRewriteContext.addSQLTokenGenerators(Lists.newArrayList(optionalSQLTokenGenerator));
         sqlRewriteContext.generateSQLTokens();
         assertFalse(sqlRewriteContext.getSqlTokens().isEmpty());
         assertThat(sqlRewriteContext.getSqlTokens().get(0), instanceOf(SQLToken.class));
@@ -92,7 +93,7 @@ public final class SQLRewriteContextTest {
     @Test
     public void assertGenerateCollectionSQLToken() {
         SQLRewriteContext sqlRewriteContext = new SQLRewriteContext(schema, sqlStatementContext, "INSERT INTO tbl VALUES (?)", Collections.singletonList(1));
-        sqlRewriteContext.addSQLTokenGenerators(Collections.singleton(collectionSQLTokenGenerator));
+        sqlRewriteContext.addSQLTokenGenerators(Lists.newArrayList(collectionSQLTokenGenerator));
         sqlRewriteContext.generateSQLTokens();
         assertFalse(sqlRewriteContext.getSqlTokens().isEmpty());
         assertThat(sqlRewriteContext.getSqlTokens().get(0), instanceOf(SQLToken.class));

@@ -25,6 +25,8 @@ import org.junit.Test;
 
 import java.util.Optional;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public final class PropertiesChangedWatcherTest {
@@ -35,6 +37,6 @@ public final class PropertiesChangedWatcherTest {
     public void assertCreateEvent() {
         Optional<PropertiesChangedEvent> actual = new PropertiesChangedWatcher().createGovernanceEvent(new DataChangedEvent("test", PROPERTIES_YAML, Type.UPDATED));
         assertTrue(actual.isPresent());
-        assertTrue((boolean) actual.get().getProps().get(ConfigurationPropertyKey.SQL_SHOW.getKey()));
+        assertThat(actual.get().getProps().get(ConfigurationPropertyKey.SQL_SHOW.getKey()), is(true));
     }
 }

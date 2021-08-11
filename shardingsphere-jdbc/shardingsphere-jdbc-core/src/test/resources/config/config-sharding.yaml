@@ -15,8 +15,6 @@
 # limitations under the License.
 #
 
-schemaName: logic_db
-
 rules:
 - !SHARDING
   tables:
@@ -54,7 +52,6 @@ rules:
     - t_order,t_order_item
   broadcastTables:
     - t_config
-    - t_sys
   defaultTableStrategy:
     standard:
       shardingColumn: order_id

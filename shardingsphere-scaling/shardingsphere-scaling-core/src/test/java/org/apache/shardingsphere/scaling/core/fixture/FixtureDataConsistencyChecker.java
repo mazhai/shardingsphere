@@ -17,12 +17,13 @@
 
 package org.apache.shardingsphere.scaling.core.fixture;
 
+import com.google.common.collect.Maps;
 import org.apache.shardingsphere.scaling.core.common.sqlbuilder.ScalingSQLBuilder;
 import org.apache.shardingsphere.scaling.core.job.JobContext;
 import org.apache.shardingsphere.scaling.core.job.check.consistency.AbstractDataConsistencyChecker;
+import org.apache.shardingsphere.scaling.core.job.check.consistency.DataConsistencyCheckResult;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public final class FixtureDataConsistencyChecker extends AbstractDataConsistencyChecker {
@@ -32,12 +33,17 @@ public final class FixtureDataConsistencyChecker extends AbstractDataConsistency
     }
     
     @Override
+    public Map<String, DataConsistencyCheckResult> countCheck() {
+        return super.countCheck();
+    }
+    
+    @Override
     public Map<String, Boolean> dataCheck() {
         return Collections.emptyMap();
     }
     
     @Override
-    protected ScalingSQLBuilder getSQLBuilder() {
-        return new FixtureSQLBuilder(new HashMap<>());
+    protected ScalingSQLBuilder getSqlBuilder() {
+        return new FixtureSQLBuilder(Maps.newHashMap());
     }
 }

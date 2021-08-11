@@ -25,8 +25,8 @@ import java.util.List;
 /**
  * Update row event.
  */
-@Getter
 @Setter
+@Getter
 public final class UpdateRowEvent extends AbstractRowEvent {
     
     private List<Object> afterRow;

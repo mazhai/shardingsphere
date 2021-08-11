@@ -28,13 +28,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
-public final class ConnectionStatusTest {
+public class ConnectionStatusTest {
     
-    private final int numberOfThreads = 10;
+    private int numberOfThreads = 10;
     
     private ExecutorService service;
     
@@ -65,7 +63,7 @@ public final class ConnectionStatusTest {
         }
         latch.await();
         assertThat(numberOfThreads, is(counter.get()));
-        assertTrue(usingField.getBoolean(connectionStatus));
+        assertThat(usingField.getBoolean(connectionStatus), is(true));
     }
     
     @Test
@@ -82,7 +80,7 @@ public final class ConnectionStatusTest {
         }
         latch.await();
         assertThat(counter.get(), is(0));
-        assertFalse(usingField.getBoolean(connectionStatus));
+        assertThat(usingField.getBoolean(connectionStatus), is(false));
     }
     
     @Test
@@ -99,9 +97,9 @@ public final class ConnectionStatusTest {
         }
         latch.await(200, TimeUnit.MILLISECONDS);
         assertThat(counter.get(), is(10));
-        assertTrue(usingField.getBoolean(connectionStatus));
+        assertThat(usingField.getBoolean(connectionStatus), is(true));
         connectionStatus.switchToReleased();
-        assertFalse(usingField.getBoolean(connectionStatus));
+        assertThat(usingField.getBoolean(connectionStatus), is(false));
         latch.await(300, TimeUnit.MILLISECONDS);
         assertThat(counter.get(), is(0));
     }

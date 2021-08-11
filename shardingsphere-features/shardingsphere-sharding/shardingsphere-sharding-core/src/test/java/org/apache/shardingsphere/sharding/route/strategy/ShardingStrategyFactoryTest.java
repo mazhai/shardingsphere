@@ -33,7 +33,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -60,16 +59,14 @@ public final class ShardingStrategyFactoryTest {
     @Test
     public void assertNewInstance() {
         when(standardShardingStrategyConfiguration.getShardingColumn()).thenReturn("standard_sharding_column");
-        ShardingStrategy actualStandardShardingStrategy = ShardingStrategyFactory.newInstance(standardShardingStrategyConfiguration, standardShardingAlgorithmFixture, null);
+        ShardingStrategy actualStandardShardingStrategy = ShardingStrategyFactory.newInstance(standardShardingStrategyConfiguration, standardShardingAlgorithmFixture);
         assertTrue(actualStandardShardingStrategy instanceof StandardShardingStrategy);
         when(complexShardingStrategyConfiguration.getShardingColumns()).thenReturn("complex_sharding_column");
-        ShardingStrategy actualComplexShardingStrategy = ShardingStrategyFactory.newInstance(complexShardingStrategyConfiguration, complexKeysShardingAlgorithmFixture, null);
+        ShardingStrategy actualComplexShardingStrategy = ShardingStrategyFactory.newInstance(complexShardingStrategyConfiguration, complexKeysShardingAlgorithmFixture);
         assertTrue(actualComplexShardingStrategy instanceof ComplexShardingStrategy);
-        ShardingStrategy actualHintShardingStrategy = ShardingStrategyFactory.newInstance(hintShardingStrategyConfiguration, hintShardingAlgorithmFixture, null);
+        ShardingStrategy actualHintShardingStrategy = ShardingStrategyFactory.newInstance(hintShardingStrategyConfiguration, hintShardingAlgorithmFixture);
         assertTrue(actualHintShardingStrategy instanceof HintShardingStrategy);
-        ShardingStrategy actualNoneShardingStrategy = ShardingStrategyFactory.newInstance(null, null, null);
+        ShardingStrategy actualNoneShardingStrategy = ShardingStrategyFactory.newInstance(null, null);
         assertTrue(actualNoneShardingStrategy instanceof NoneShardingStrategy);
-        ShardingStrategy actualStandardWithDefaultColumnStrategy = ShardingStrategyFactory.newInstance(mock(StandardShardingStrategyConfiguration.class), standardShardingAlgorithmFixture, "order_id");
-        assertTrue(actualStandardWithDefaultColumnStrategy.getShardingColumns().contains("order_id"));
     }
 }

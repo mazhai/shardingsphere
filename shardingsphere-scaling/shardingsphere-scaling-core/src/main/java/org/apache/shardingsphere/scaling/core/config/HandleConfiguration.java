@@ -25,8 +25,8 @@ import lombok.Setter;
  * Handle configuration.
  */
 @NoArgsConstructor
-@Getter
 @Setter
+@Getter
 public final class HandleConfiguration {
     
     private Long jobId;

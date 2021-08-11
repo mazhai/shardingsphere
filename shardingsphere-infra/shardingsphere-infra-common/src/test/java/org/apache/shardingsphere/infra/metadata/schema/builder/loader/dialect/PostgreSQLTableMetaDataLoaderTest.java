@@ -17,6 +17,12 @@
 
 package org.apache.shardingsphere.infra.metadata.schema.builder.loader.dialect;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.Collections;
+import java.util.Map;
+import javax.sql.DataSource;
 import org.apache.shardingsphere.infra.metadata.schema.builder.spi.DialectTableMetaDataLoader;
 import org.apache.shardingsphere.infra.metadata.schema.model.ColumnMetaData;
 import org.apache.shardingsphere.infra.metadata.schema.model.IndexMetaData;
@@ -24,13 +30,6 @@ import org.apache.shardingsphere.infra.metadata.schema.model.TableMetaData;
 import org.apache.shardingsphere.infra.spi.ShardingSphereServiceLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.Collections;
-import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -40,8 +39,7 @@ import static org.mockito.Mockito.when;
 
 public final class PostgreSQLTableMetaDataLoaderTest {
     
-    private static final String BASIC_TABLE_META_DATA_SQL = "SELECT table_name, column_name, ordinal_position, data_type, udt_name, column_default "
-            + "FROM information_schema.columns WHERE table_schema = ?";
+    private static final String BASIC_TABLE_META_DATA_SQL = "SELECT table_name, column_name, data_type, udt_name, column_default FROM information_schema.columns WHERE table_schema = ?";
     
     private static final String TABLE_META_DATA_SQL_WITH_EXISTED_TABLES = BASIC_TABLE_META_DATA_SQL + " AND table_name NOT IN ('existed_tbl')";
     
@@ -101,7 +99,6 @@ public final class PostgreSQLTableMetaDataLoaderTest {
         when(result.next()).thenReturn(true, true, false);
         when(result.getString("table_name")).thenReturn("tbl");
         when(result.getString("column_name")).thenReturn("id", "name");
-        when(result.getInt("ordinal_position")).thenReturn(1, 2);
         when(result.getString("data_type")).thenReturn("integer", "character varying");
         when(result.getString("udt_name")).thenReturn("int4", "varchar");
         when(result.getString("column_default")).thenReturn("nextval('id_seq'::regclass)", "");

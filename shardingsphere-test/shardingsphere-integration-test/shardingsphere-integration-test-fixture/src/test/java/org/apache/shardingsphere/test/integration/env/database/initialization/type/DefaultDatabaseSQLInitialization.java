@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Database SQL initialization for Default.
@@ -48,7 +47,7 @@ public abstract class DefaultDatabaseSQLInitialization {
     public void executeInitSQLs(final String scenario, final DatabaseType databaseType, final Map<String, DataSource> dataSourceMap) throws IOException, SQLException {
         File file = new File(EnvironmentPath.getInitSQLFile(databaseType, scenario));
         // TODO use multiple threads to improve performance
-        for (Entry<String, DataSource> each : dataSourceMap.entrySet()) {
+        for (Map.Entry<String, DataSource> each : dataSourceMap.entrySet()) {
             try (Connection connection = each.getValue().getConnection();
                  FileReader reader = new FileReader(file)) {
                 RunScript.execute(connection, reader);

@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sharding.route.engine.type.broadcast;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.shardingsphere.infra.route.context.RouteContext;
 import org.apache.shardingsphere.infra.route.context.RouteMapper;
@@ -25,7 +26,6 @@ import org.apache.shardingsphere.sharding.route.engine.type.ShardingRouteEngine;
 import org.apache.shardingsphere.sharding.rule.ShardingRule;
 import org.apache.shardingsphere.sharding.rule.TableRule;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -86,6 +86,6 @@ public final class ShardingDataSourceGroupBroadcastRoutingEngine implements Shar
     }
     
     private String getRandomDataSourceName(final Collection<String> dataSourceNames) {
-        return new ArrayList<>(dataSourceNames).get(ThreadLocalRandom.current().nextInt(dataSourceNames.size()));
+        return Lists.newArrayList(dataSourceNames).get(ThreadLocalRandom.current().nextInt(dataSourceNames.size()));
     }
 }

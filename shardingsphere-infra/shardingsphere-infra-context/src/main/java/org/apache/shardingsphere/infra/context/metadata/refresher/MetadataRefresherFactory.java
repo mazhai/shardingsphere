@@ -30,7 +30,6 @@ import org.apache.shardingsphere.infra.metadata.schema.refresher.type.DropTableS
 import org.apache.shardingsphere.infra.metadata.schema.refresher.type.DropViewStatementSchemaRefresher;
 import org.apache.shardingsphere.infra.optimize.core.metadata.refresher.type.AlterTableStatementFederateRefresher;
 import org.apache.shardingsphere.infra.optimize.core.metadata.refresher.type.CreateTableStatementFederateRefresher;
-import org.apache.shardingsphere.infra.optimize.core.metadata.refresher.type.DropTableStatementFederateRefresher;
 import org.apache.shardingsphere.sql.parser.sql.common.statement.SQLStatement;
 import org.apache.shardingsphere.sql.parser.sql.common.statement.ddl.AlterIndexStatement;
 import org.apache.shardingsphere.sql.parser.sql.common.statement.ddl.AlterTableStatement;
@@ -70,7 +69,6 @@ public final class MetadataRefresherFactory {
         REGISTRY.get(AlterTableStatement.class).add(new AlterTableStatementSchemaRefresher());
         REGISTRY.get(AlterTableStatement.class).add(new AlterTableStatementFederateRefresher());
         REGISTRY.get(DropTableStatement.class).add(new DropTableStatementSchemaRefresher());
-        REGISTRY.get(DropTableStatement.class).add(new DropTableStatementFederateRefresher());
         REGISTRY.get(CreateIndexStatement.class).add(new CreateIndexStatementSchemaRefresher());
         REGISTRY.get(AlterIndexStatement.class).add(new AlterIndexStatementSchemaRefresher());
         REGISTRY.get(DropIndexStatement.class).add(new DropIndexStatementSchemaRefresher());

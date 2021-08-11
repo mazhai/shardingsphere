@@ -23,8 +23,8 @@ import lombok.Setter;
 /**
  * Abstract row event.
  */
-@Getter
 @Setter
+@Getter
 public abstract class AbstractRowEvent extends AbstractWalEvent {
     
     private String schemaName;

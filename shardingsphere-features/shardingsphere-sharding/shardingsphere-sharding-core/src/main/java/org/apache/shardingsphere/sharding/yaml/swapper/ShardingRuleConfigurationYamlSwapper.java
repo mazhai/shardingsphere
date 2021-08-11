@@ -17,8 +17,8 @@
 
 package org.apache.shardingsphere.sharding.yaml.swapper;
 
-import org.apache.shardingsphere.infra.yaml.config.swapper.YamlRuleConfigurationSwapper;
-import org.apache.shardingsphere.infra.yaml.config.swapper.algorithm.ShardingSphereAlgorithmConfigurationYamlSwapper;
+import org.apache.shardingsphere.infra.yaml.swapper.YamlRuleConfigurationSwapper;
+import org.apache.shardingsphere.infra.yaml.swapper.algorithm.ShardingSphereAlgorithmConfigurationYamlSwapper;
 import org.apache.shardingsphere.sharding.api.config.ShardingRuleConfiguration;
 import org.apache.shardingsphere.sharding.constant.ShardingOrder;
 import org.apache.shardingsphere.sharding.yaml.config.YamlShardingRuleConfiguration;
@@ -55,7 +55,6 @@ public final class ShardingRuleConfigurationYamlSwapper implements YamlRuleConfi
         result.getBroadcastTables().addAll(data.getBroadcastTables());
         setYamlDefaultStrategies(data, result);
         setYamlAlgorithms(data, result);
-        result.setDefaultShardingColumn(data.getDefaultShardingColumn());
         return result;
     }
     
@@ -97,7 +96,6 @@ public final class ShardingRuleConfigurationYamlSwapper implements YamlRuleConfi
         result.getBroadcastTables().addAll(yamlConfig.getBroadcastTables());
         setDefaultStrategies(yamlConfig, result);
         setAlgorithms(yamlConfig, result);
-        result.setDefaultShardingColumn(yamlConfig.getDefaultShardingColumn());
         return result;
     }
     

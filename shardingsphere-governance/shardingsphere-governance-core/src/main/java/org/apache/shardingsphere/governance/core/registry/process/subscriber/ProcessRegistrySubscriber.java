@@ -79,18 +79,16 @@ public final class ProcessRegistrySubscriber {
      */
     @Subscribe
     public void reportExecuteProcessUnit(final ExecuteProcessUnitReportEvent event) {
-        String executionID = event.getExecutionID();
-        synchronized (executionID) {
-            String executionPath = ProcessNode.getExecutionPath(executionID);
-            YamlExecuteProcessContext yamlExecuteProcessContext = YamlEngine.unmarshal(repository.get(executionPath), YamlExecuteProcessContext.class);
-            ExecuteProcessUnit executeProcessUnit = event.getExecuteProcessUnit();
-            for (YamlExecuteProcessUnit unit : yamlExecuteProcessContext.getUnitStatuses()) {
-                if (unit.getUnitID().equals(executeProcessUnit.getUnitID())) {
-                    unit.setStatus(executeProcessUnit.getStatus());
-                }
+        // TODO lock on the same jvm
+        String executionPath = ProcessNode.getExecutionPath(event.getExecutionID());
+        YamlExecuteProcessContext yamlExecuteProcessContext = YamlEngine.unmarshal(repository.get(executionPath), YamlExecuteProcessContext.class);
+        ExecuteProcessUnit executeProcessUnit = event.getExecuteProcessUnit();
+        for (YamlExecuteProcessUnit unit : yamlExecuteProcessContext.getUnitStatuses()) {
+            if (unit.getUnitID().equals(executeProcessUnit.getUnitID())) {
+                unit.setStatus(executeProcessUnit.getStatus());
             }
-            repository.persist(executionPath, YamlEngine.marshal(yamlExecuteProcessContext));
         }
+        repository.persist(executionPath, YamlEngine.marshal(yamlExecuteProcessContext));
     }
     
     /**

@@ -17,18 +17,14 @@
 
 package org.apache.shardingsphere.infra.context.metadata.impl;
 
-import org.apache.shardingsphere.infra.persist.DistMetaDataPersistService;
 import org.apache.shardingsphere.infra.config.properties.ConfigurationProperties;
 import org.apache.shardingsphere.infra.database.DefaultSchema;
+import org.apache.shardingsphere.infra.database.type.dialect.MySQLDatabaseType;
 import org.apache.shardingsphere.infra.executor.kernel.ExecutorEngine;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
+import org.apache.shardingsphere.infra.metadata.resource.ShardingSphereResource;
 import org.apache.shardingsphere.infra.metadata.rule.ShardingSphereRuleMetaData;
-import org.apache.shardingsphere.infra.optimize.context.OptimizeContextFactory;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.Properties;
@@ -37,29 +33,34 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public final class StandardMetaDataContextsTest {
-    
-    @Mock
-    private OptimizeContextFactory optimizeContextFactory;
-    
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ShardingSphereMetaData metaData;
     
     @Test
     public void assertGetDefaultMetaData() {
-        StandardMetaDataContexts standardMetaDataContexts = new StandardMetaDataContexts(mock(DistMetaDataPersistService.class), Collections.singletonMap(DefaultSchema.LOGIC_NAME, metaData), 
-                mock(ShardingSphereRuleMetaData.class), null, new ConfigurationProperties(new Properties()), optimizeContextFactory);
-        assertThat(standardMetaDataContexts.getMetaData(DefaultSchema.LOGIC_NAME), is(metaData));
+        ShardingSphereMetaData metaData = getShardingSphereMetaData();
+        StandardMetaDataContexts standardMetaDataContexts = new StandardMetaDataContexts(Collections.singletonMap(DefaultSchema.LOGIC_NAME, metaData), 
+                mock(ShardingSphereRuleMetaData.class), null, new ConfigurationProperties(new Properties()));
+        assertThat(standardMetaDataContexts.getDefaultMetaData(), is(metaData));
     }
     
     @Test
     public void assertClose() {
         ExecutorEngine executorEngine = mock(ExecutorEngine.class);
-        StandardMetaDataContexts standardMetaDataContexts = new StandardMetaDataContexts(mock(DistMetaDataPersistService.class), Collections.singletonMap("logic_db", metaData), 
-                mock(ShardingSphereRuleMetaData.class), executorEngine, new ConfigurationProperties(new Properties()), optimizeContextFactory);
+        ShardingSphereMetaData metaData = getShardingSphereMetaData();
+        StandardMetaDataContexts standardMetaDataContexts = new StandardMetaDataContexts(Collections.singletonMap("logic_db", metaData), 
+                mock(ShardingSphereRuleMetaData.class), executorEngine, new ConfigurationProperties(new Properties()));
         standardMetaDataContexts.close();
         verify(executorEngine).close();
+    }
+    
+    private ShardingSphereMetaData getShardingSphereMetaData() {
+        ShardingSphereMetaData metaData = mock(ShardingSphereMetaData.class);
+        ShardingSphereRuleMetaData ruleMetaData = new ShardingSphereRuleMetaData(Collections.emptyList(), Collections.emptyList());
+        ShardingSphereResource resource = new ShardingSphereResource(Collections.emptyMap(), null, null, new MySQLDatabaseType());
+        when(metaData.getRuleMetaData()).thenReturn(ruleMetaData);
+        when(metaData.getResource()).thenReturn(resource);
+        return metaData;
     }
 }

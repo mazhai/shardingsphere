@@ -17,9 +17,7 @@
 
 package org.apache.shardingsphere.proxy.backend.communication.jdbc.statement.impl;
 
-import org.apache.shardingsphere.infra.config.properties.ConfigurationPropertyKey;
 import org.apache.shardingsphere.proxy.backend.communication.jdbc.statement.StatementMemoryStrictlyFetchSizeSetter;
-import org.apache.shardingsphere.proxy.backend.context.ProxyContext;
 
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -31,8 +29,7 @@ public final class PostgreSQLStatementMemoryStrictlyFetchSizeSetter implements S
     
     @Override
     public void setFetchSize(final Statement statement) throws SQLException {
-        int configuredFetchSize = ProxyContext.getInstance().getMetaDataContexts().getProps().<Integer>getValue(ConfigurationPropertyKey.PROXY_BACKEND_QUERY_FETCH_SIZE);
-        statement.setFetchSize(ConfigurationPropertyKey.PROXY_BACKEND_QUERY_FETCH_SIZE.getDefaultValue().equals(String.valueOf(configuredFetchSize)) ? 1 : configuredFetchSize);
+        statement.setFetchSize(1);
     }
     
     @Override

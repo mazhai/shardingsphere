@@ -1,6 +1,6 @@
 +++
 title = "ShardingSphere的Apache共建之道"
-weight = 3
+weight = 2
 chapter = true
 +++
 

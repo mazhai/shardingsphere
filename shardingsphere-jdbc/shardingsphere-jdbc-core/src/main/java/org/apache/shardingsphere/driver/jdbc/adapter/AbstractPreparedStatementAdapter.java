@@ -18,7 +18,10 @@
 package org.apache.shardingsphere.driver.jdbc.adapter;
 
 import com.google.common.io.CharStreams;
+import java.sql.Array;
 import lombok.Getter;
+import lombok.SneakyThrows;
+import org.apache.shardingsphere.driver.jdbc.adapter.invocation.SetParameterMethodInvocation;
 import org.apache.shardingsphere.driver.jdbc.unsupported.AbstractUnsupportedOperationPreparedStatement;
 import org.apache.shardingsphere.infra.exception.ShardingSphereException;
 
@@ -27,12 +30,10 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -46,7 +47,7 @@ import java.util.List;
  */
 public abstract class AbstractPreparedStatementAdapter extends AbstractUnsupportedOperationPreparedStatement {
     
-    private final List<PreparedStatementInvocationReplayer> setParameterMethodInvocations = new LinkedList<>();
+    private final List<SetParameterMethodInvocation> setParameterMethodInvocations = new LinkedList<>();
     
     @Getter
     private final List<Object> parameters = new ArrayList<>();
@@ -274,31 +275,27 @@ public abstract class AbstractPreparedStatementAdapter extends AbstractUnsupport
         parameters.set(parameterIndex - 1, value);
     }
     
-    protected final void replaySetParameter(final PreparedStatement preparedStatement, final List<Object> parameters) throws SQLException {
+    protected final void replaySetParameter(final PreparedStatement preparedStatement, final List<Object> parameters) {
         setParameterMethodInvocations.clear();
         addParameters(parameters);
-        for (PreparedStatementInvocationReplayer each : setParameterMethodInvocations) {
-            each.replayOn(preparedStatement);
-        }
+        setParameterMethodInvocations.forEach(each -> each.invoke(preparedStatement));
     }
     
     private void addParameters(final List<Object> parameters) {
         int i = 0;
         for (Object each : parameters) {
-            int index = i++ + 1;
-            setParameterMethodInvocations.add(preparedStatement -> preparedStatement.setObject(index, each));
+            setParameters(new Class[]{int.class, Object.class}, i++ + 1, each);
         }
+    }
+    
+    @SneakyThrows(ReflectiveOperationException.class)
+    private void setParameters(final Class<?>[] argumentTypes, final Object... arguments) {
+        setParameterMethodInvocations.add(new SetParameterMethodInvocation(PreparedStatement.class.getMethod("setObject", argumentTypes), arguments, arguments[1]));
     }
     
     @Override
     public final void clearParameters() {
         parameters.clear();
         setParameterMethodInvocations.clear();
-    }
-    
-    @FunctionalInterface
-    interface PreparedStatementInvocationReplayer {
-        
-        void replayOn(PreparedStatement preparedStatement) throws SQLException;
     }
 }

@@ -27,8 +27,8 @@ import java.util.Map;
 /**
  * Dumper configuration.
  */
-@Getter
 @Setter
+@Getter
 public class DumperConfiguration {
     
     private String dataSourceName;

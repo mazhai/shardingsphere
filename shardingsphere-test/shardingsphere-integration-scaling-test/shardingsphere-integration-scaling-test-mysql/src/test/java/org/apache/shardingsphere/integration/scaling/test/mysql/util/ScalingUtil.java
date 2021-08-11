@@ -30,7 +30,6 @@ import org.apache.shardingsphere.integration.scaling.test.mysql.env.IntegrationT
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -122,11 +121,13 @@ public final class ScalingUtil {
      */
     public Map<String, Tuple2<Boolean, Boolean>> getJobCheckResult(final String jobId) throws IOException {
         JsonElement response = getInstance().get(scalingUrl + "/scaling/job/check/" + jobId);
-        return response.getAsJsonObject().getAsJsonObject("model").getAsJsonObject().entrySet().stream().collect(Collectors.toMap(Entry::getKey, this::createTaskResult));
+        return response.getAsJsonObject().getAsJsonObject("model").getAsJsonObject().entrySet().stream().collect(
+                Collectors.toMap(entry -> entry.getKey(), entry -> createTaskResult(entry)));
     }
     
-    private Tuple2<Boolean, Boolean> createTaskResult(final Entry<String, JsonElement> entry) {
-        return new Tuple2<>(entry.getValue().getAsJsonObject().get("countValid").getAsBoolean(), entry.getValue().getAsJsonObject().get("dataValid").getAsBoolean());
+    private Tuple2<Boolean, Boolean> createTaskResult(final Map.Entry<String, JsonElement> entry) {
+        return new Tuple2<>(entry.getValue().getAsJsonObject().get("countValid").getAsBoolean(),
+                entry.getValue().getAsJsonObject().get("dataValid").getAsBoolean());
     }
     
     /**

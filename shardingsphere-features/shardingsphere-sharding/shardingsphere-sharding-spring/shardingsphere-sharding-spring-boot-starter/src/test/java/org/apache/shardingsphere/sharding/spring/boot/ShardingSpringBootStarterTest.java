@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sharding.spring.boot;
 
+import com.google.common.collect.Lists;
 import org.apache.shardingsphere.sharding.algorithm.config.AlgorithmProvidedShardingRuleConfiguration;
 import org.apache.shardingsphere.sharding.algorithm.keygen.SnowflakeKeyGenerateAlgorithm;
 import org.apache.shardingsphere.sharding.algorithm.sharding.inline.InlineShardingAlgorithm;
@@ -84,7 +85,7 @@ public class ShardingSpringBootStarterTest {
     private void assertShardingConfigurationTables() {
         assertThat(shardingRuleConfig.getTables().size(), is(2));
         assertThat(shardingRuleConfig.getAutoTables().size(), is(1));
-        List<ShardingTableRuleConfiguration> shardingTableRuleConfigs = new ArrayList<>(shardingRuleConfig.getTables());
+        List<ShardingTableRuleConfiguration> shardingTableRuleConfigs = Lists.newArrayList(shardingRuleConfig.getTables());
         assertThat(shardingTableRuleConfigs.get(0).getLogicTable(), is("t_order"));
         assertThat(shardingTableRuleConfigs.get(0).getActualDataNodes(), is("ds_$->{0..1}.t_order_$->{0..1}"));
         assertThat(shardingTableRuleConfigs.get(0).getTableShardingStrategy(), instanceOf(StandardShardingStrategyConfiguration.class));
@@ -99,7 +100,7 @@ public class ShardingSpringBootStarterTest {
         assertThat(shardingTableRuleConfigs.get(1).getTableShardingStrategy().getShardingAlgorithmName(), is("orderItemTableShardingAlgorithm"));
         assertThat(shardingTableRuleConfigs.get(1).getKeyGenerateStrategy().getColumn(), is("order_item_id"));
         assertThat(shardingTableRuleConfigs.get(1).getKeyGenerateStrategy().getKeyGeneratorName(), is("keyGenerator"));
-        List<ShardingAutoTableRuleConfiguration> autoShardingTableRuleConfigs = new ArrayList<>(shardingRuleConfig.getAutoTables());
+        List<ShardingAutoTableRuleConfiguration> autoShardingTableRuleConfigs = Lists.newArrayList(shardingRuleConfig.getAutoTables());
         assertThat(autoShardingTableRuleConfigs.get(0).getLogicTable(), is("t_order_auto"));
         assertThat(autoShardingTableRuleConfigs.get(0).getActualDataSources(), is("ds0, ds1"));
         assertThat(autoShardingTableRuleConfigs.get(0).getShardingStrategy(), instanceOf(StandardShardingStrategyConfiguration.class));

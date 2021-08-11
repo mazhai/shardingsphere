@@ -42,9 +42,10 @@ public final class FederateFilterableTable extends AbstractFederateTable impleme
     @Override
     public Enumerable<Object[]> scan(final DataContext root, final List<RexNode> filters, final int[] projects) {
         return new AbstractEnumerable<Object[]>() {
+
             @Override
             public Enumerator<Object[]> enumerator() {
-                return new FederateRowEnumerator(getExecutor().execute(getMetadata(), root, filters, projects));
+                return new FederateRowEnumerator(getExecutor().execute(getMetadata().getName(), root, filters, projects));
             }
         };
     }

@@ -1,6 +1,6 @@
 +++
 title = "After years of stagnation, ElasticJob is back with the first Apache version 3.0.0-alpha"
-weight = 13
+weight = 1
 chapter = true
 +++
 ## After years of stagnation, ElasticJob is back with the first Apache version 3.0.0-alpha

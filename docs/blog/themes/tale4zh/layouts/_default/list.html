@@ -2,7 +2,7 @@
 
 <main>
 	<div class="catalogue">
-		{{ range (.Paginate .Pages.ByWeight.Reverse).Pages }}
+		{{ range (.Paginate .Pages).Pages.ByWeight }}
 			{{ .Render "summary" }}
 		{{ end }}
 	</div>

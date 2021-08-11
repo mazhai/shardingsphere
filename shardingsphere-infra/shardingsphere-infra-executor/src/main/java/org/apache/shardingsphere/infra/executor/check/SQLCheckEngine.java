@@ -88,7 +88,6 @@ public final class SQLCheckEngine {
      * @param rules rules
      * @return check result
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public static boolean check(final Grantee user, final Collection<ShardingSphereRule> rules) {
         if (rules.isEmpty()) {
             return false;
@@ -102,6 +101,7 @@ public final class SQLCheckEngine {
         return true;
     }
 
+
     /**
      * Check authentication.
      * @param user user
@@ -110,7 +110,6 @@ public final class SQLCheckEngine {
      * @param rules rules
      * @return check result
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public static boolean check(final Grantee user, final BiPredicate<Object, Object> validate, final Object cipher, final Collection<ShardingSphereRule> rules) {
         if (rules.isEmpty()) {
             return false;

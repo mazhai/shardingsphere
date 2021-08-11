@@ -32,7 +32,6 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public final class DataSourceManagerTest {
     
@@ -57,6 +56,6 @@ public final class DataSourceManagerTest {
         assertNotNull(cachedDataSources);
         assertThat(cachedDataSources.size(), is(2));
         dataSourceManager.close();
-        assertTrue(cachedDataSources.isEmpty());
+        assertThat(cachedDataSources.size(), is(0));
     }
 }

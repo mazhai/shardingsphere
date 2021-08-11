@@ -26,7 +26,6 @@ import org.apache.shardingsphere.sharding.rule.ShardingRule;
 import org.apache.shardingsphere.sharding.rule.TableRule;
 
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Sharding federated routing engine.
@@ -38,8 +37,15 @@ public final class ShardingFederatedRoutingEngine implements ShardingRouteEngine
     
     @Override
     public void route(final RouteContext routeContext, final ShardingRule shardingRule) {
-        for (String each : shardingRule.getShardingBroadcastTableNames(logicTables)) {
-            fillRouteContext(routeContext, shardingRule, each);
+        for (String each : logicTables) {
+            if (shardingRule.getSingleTableRules().containsKey(each)) {
+                String dataSourceName = shardingRule.getSingleTableRules().get(each).getDataSourceName();
+                RouteMapper dataSource = new RouteMapper(dataSourceName, dataSourceName);
+                RouteMapper table = new RouteMapper(each, each);
+                routeContext.putRouteUnit(dataSource, table);
+            } else {
+                fillRouteContext(routeContext, shardingRule, each);
+            }
         }
         routeContext.setFederated(true);
     }
@@ -49,7 +55,7 @@ public final class ShardingFederatedRoutingEngine implements ShardingRouteEngine
         for (DataNode each : tableRule.getActualDataNodes()) {
             RouteMapper dataSource = new RouteMapper(each.getDataSourceName(), each.getDataSourceName());
             RouteMapper table = new RouteMapper(logicTableName, each.getTableName());
-            routeContext.putRouteUnit(dataSource, Collections.singletonList(table));
+            routeContext.putRouteUnit(dataSource, table);
         }
     }
 }

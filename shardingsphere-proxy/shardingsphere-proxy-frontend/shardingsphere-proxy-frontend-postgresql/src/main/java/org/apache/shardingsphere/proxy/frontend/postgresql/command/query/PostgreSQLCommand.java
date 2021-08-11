@@ -18,7 +18,7 @@
 package org.apache.shardingsphere.proxy.frontend.postgresql.command.query;
 
 import org.apache.shardingsphere.distsql.parser.statement.rdl.create.AddResourceStatement;
-import org.apache.shardingsphere.sharding.distsql.parser.statement.CreateShardingTableRuleStatement;
+import org.apache.shardingsphere.distsql.parser.statement.rdl.create.impl.CreateShardingTableRuleStatement;
 import org.apache.shardingsphere.sql.parser.sql.common.statement.SQLStatement;
 import org.apache.shardingsphere.sql.parser.sql.common.statement.dal.SetStatement;
 import org.apache.shardingsphere.sql.parser.sql.common.statement.ddl.CreateDatabaseStatement;
@@ -33,9 +33,7 @@ import org.apache.shardingsphere.sql.parser.sql.common.statement.tcl.RollbackSta
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * PostgreSQL command.
@@ -53,8 +51,6 @@ public enum PostgreSQLCommand {
     ROLLBACK(RollbackStatement.class),
     SET(SetStatement.class);
     
-    private static final Map<Class<? extends SQLStatement>, Optional<PostgreSQLCommand>> COMPUTED_CLASSES = new ConcurrentHashMap<>(16, 1);
-    
     private final Collection<Class<? extends SQLStatement>> sqlStatementClasses;
     
     @SafeVarargs
@@ -69,7 +65,7 @@ public enum PostgreSQLCommand {
      * @return PostgreSQL command
      */
     public static Optional<PostgreSQLCommand> valueOf(final Class<? extends SQLStatement> sqlStatementClass) {
-        return COMPUTED_CLASSES.computeIfAbsent(sqlStatementClass, target -> Arrays.stream(PostgreSQLCommand.values()).filter(each -> matches(target, each)).findAny());
+        return Arrays.stream(PostgreSQLCommand.values()).filter(each -> matches(sqlStatementClass, each)).findAny();
     }
     
     private static boolean matches(final Class<? extends SQLStatement> sqlStatementClass, final PostgreSQLCommand postgreSQLCommand) {

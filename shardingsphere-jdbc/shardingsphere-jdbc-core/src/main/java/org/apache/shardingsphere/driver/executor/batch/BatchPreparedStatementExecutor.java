@@ -30,7 +30,7 @@ import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.J
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutor;
 import org.apache.shardingsphere.infra.executor.sql.execute.engine.driver.jdbc.JDBCExecutorCallback;
 import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
-import org.apache.shardingsphere.infra.rule.identifier.type.DataNodeContainedRule;
+import org.apache.shardingsphere.infra.rule.type.DataNodeContainedRule;
 import org.apache.shardingsphere.sql.parser.sql.common.statement.SQLStatement;
 
 import java.sql.SQLException;
@@ -60,10 +60,7 @@ public final class BatchPreparedStatementExecutor {
     
     private int batchCount;
     
-    private final String schemaName;
-    
-    public BatchPreparedStatementExecutor(final MetaDataContexts metaDataContexts, final JDBCExecutor jdbcExecutor, final String schemaName) {
-        this.schemaName = schemaName;
+    public BatchPreparedStatementExecutor(final MetaDataContexts metaDataContexts, final JDBCExecutor jdbcExecutor) {
         this.metaDataContexts = metaDataContexts;
         this.jdbcExecutor = jdbcExecutor;
         executionGroupContext = new ExecutionGroupContext<>(new LinkedList<>());
@@ -121,10 +118,10 @@ public final class BatchPreparedStatementExecutor {
      * @return execute results
      * @throws SQLException SQL exception
      */
-    public int[] executeBatch(final SQLStatementContext<?> sqlStatementContext) throws SQLException {
+    public int[] executeBatch(final SQLStatementContext sqlStatementContext) throws SQLException {
         boolean isExceptionThrown = SQLExecutorExceptionHandler.isExceptionThrown();
         JDBCExecutorCallback<int[]> callback = new JDBCExecutorCallback<int[]>(
-                metaDataContexts.getMetaData(schemaName).getResource().getDatabaseType(), sqlStatementContext.getSqlStatement(), isExceptionThrown) {
+                metaDataContexts.getDefaultMetaData().getResource().getDatabaseType(), sqlStatementContext.getSqlStatement(), isExceptionThrown) {
             
             @Override
             protected int[] executeSQL(final String sql, final Statement statement, final ConnectionMode connectionMode) throws SQLException {
@@ -134,7 +131,7 @@ public final class BatchPreparedStatementExecutor {
             @SuppressWarnings("OptionalContainsCollection")
             @Override
             protected Optional<int[]> getSaneResult(final SQLStatement sqlStatement) {
-                return Optional.empty();
+                return Optional.of(new int[batchCount]);
             }
         };
         List<int[]> results = jdbcExecutor.execute(executionGroupContext, callback);
@@ -142,11 +139,11 @@ public final class BatchPreparedStatementExecutor {
             return new int[0];
         }
         return isNeedAccumulate(
-                metaDataContexts.getMetaData(schemaName).getRuleMetaData().getRules().stream().filter(rule -> rule instanceof DataNodeContainedRule).collect(Collectors.toList()), sqlStatementContext)
+                metaDataContexts.getDefaultMetaData().getRuleMetaData().getRules().stream().filter(rule -> rule instanceof DataNodeContainedRule).collect(Collectors.toList()), sqlStatementContext)
                 ? accumulate(results) : results.get(0);
     }
     
-    private boolean isNeedAccumulate(final Collection<ShardingSphereRule> rules, final SQLStatementContext<?> sqlStatementContext) {
+    private boolean isNeedAccumulate(final Collection<ShardingSphereRule> rules, final SQLStatementContext sqlStatementContext) {
         return rules.stream().anyMatch(each -> ((DataNodeContainedRule) each).isNeedAccumulate(sqlStatementContext.getTablesContext().getTableNames()));
     }
     

@@ -104,7 +104,7 @@ public final class ResultSetUtil {
         if (null == value) {
             return convertNullValue(BigDecimal.class);
         }
-        if (BigDecimal.class == value.getClass()) {
+        if (value.getClass() == BigDecimal.class) {
             return adjustBigDecimalResult((BigDecimal) value, needScale, scale);
         }
         if (value instanceof Number || value instanceof String) {

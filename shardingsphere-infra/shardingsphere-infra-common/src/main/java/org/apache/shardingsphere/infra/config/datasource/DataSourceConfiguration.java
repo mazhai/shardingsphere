@@ -28,18 +28,15 @@ import org.apache.shardingsphere.infra.config.exception.ShardingSphereConfigurat
 import org.apache.shardingsphere.infra.spi.ShardingSphereServiceLoader;
 
 import javax.sql.DataSource;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Properties;
 
 /**
  * Data source configuration.
@@ -47,8 +44,6 @@ import java.util.Properties;
 @RequiredArgsConstructor
 @Getter
 public final class DataSourceConfiguration {
-    
-    public static final String CUSTOM_POOL_PROPS_KEY = "customPoolProps";
     
     private static final String GETTER_PREFIX = "get";
     
@@ -68,11 +63,9 @@ public final class DataSourceConfiguration {
     
     private final Map<String, Object> props = new LinkedHashMap<>();
     
-    private final Properties customPoolProps = new Properties();
-    
     /**
      * Get data source configuration.
-     *
+     * 
      * @param dataSource data source
      * @return data source configuration
      */
@@ -108,7 +101,7 @@ public final class DataSourceConfiguration {
     
     /**
      * Create data source.
-     *
+     * 
      * @return data source
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -116,37 +109,27 @@ public final class DataSourceConfiguration {
     public DataSource createDataSource() {
         DataSource result = (DataSource) Class.forName(dataSourceClassName).getConstructor().newInstance();
         Method[] methods = result.getClass().getMethods();
-        Map<String, Object> allProps = new HashMap<>(props);
-        allProps.putAll((Map) customPoolProps);
-        for (Entry<String, Object> entry : allProps.entrySet()) {
+        for (Entry<String, Object> entry : props.entrySet()) {
             if (SKIPPED_PROPERTY_NAMES.contains(entry.getKey())) {
                 continue;
             }
             try {
                 Optional<Method> setterMethod = findSetterMethod(methods, entry.getKey());
                 if (setterMethod.isPresent() && null != entry.getValue()) {
-                    setDataSourceField(setterMethod.get(), result, entry.getValue());
+                    setterMethod.get().invoke(result, setterMethod.get().getParameterTypes()[0] == String.class
+                            ? String.valueOf(entry.getValue()) : entry.getValue());
                 }
             } catch (final IllegalArgumentException ex) {
                 throw new ShardingSphereConfigurationException("Incorrect configuration item: the property %s of the dataSource, because %s", entry.getKey(), ex.getMessage());
             }
         }
-        return JDBCParameterDecoratorHelper.decorate(result);
+        Optional<JDBCParameterDecorator> decorator = findJDBCParameterDecorator(result);
+        return decorator.isPresent() ? decorator.get().decorate(result) : result;
     }
     
-    private void setDataSourceField(final Method method, final DataSource target, final Object value) throws InvocationTargetException, IllegalAccessException {
-        Class<?> paramType = method.getParameterTypes()[0];
-        if (paramType == int.class) {
-            method.invoke(target, Integer.parseInt(value.toString()));
-        } else if (paramType == long.class) {
-            method.invoke(target, Long.parseLong(value.toString()));
-        } else if (paramType == boolean.class || paramType == Boolean.class) {
-            method.invoke(target, Boolean.parseBoolean(value.toString()));
-        } else if (paramType == String.class) {
-            method.invoke(target, value.toString());
-        } else {
-            method.invoke(target, value);
-        }
+    @SuppressWarnings("rawtypes")
+    private Optional<JDBCParameterDecorator> findJDBCParameterDecorator(final DataSource dataSource) {
+        return ShardingSphereServiceLoader.getSingletonServiceInstances(JDBCParameterDecorator.class).stream().filter(each -> each.getType() == dataSource.getClass()).findFirst();
     }
     
     private Optional<Method> findSetterMethod(final Method[] methods, final String property) {

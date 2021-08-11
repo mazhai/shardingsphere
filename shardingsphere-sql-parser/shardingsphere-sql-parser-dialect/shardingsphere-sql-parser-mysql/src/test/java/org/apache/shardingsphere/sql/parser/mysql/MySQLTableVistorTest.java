@@ -22,7 +22,7 @@ import org.antlr.v4.runtime.CodePointBuffer;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.apache.shardingsphere.sql.parser.core.ParseASTNode;
+import org.apache.shardingsphere.sql.parser.core.parser.ParseASTNode;
 import org.apache.shardingsphere.sql.parser.mysql.parser.MySQLLexer;
 import org.apache.shardingsphere.sql.parser.mysql.parser.MySQLParser;
 import org.apache.shardingsphere.sql.parser.mysql.visitor.MySQLSQLStatVisitor;
@@ -30,7 +30,6 @@ import org.apache.shardingsphere.sql.parser.sql.common.SQLStats;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 import java.nio.CharBuffer;
 import java.util.Collection;
@@ -69,7 +68,7 @@ public final class MySQLTableVistorTest {
     
     private final int columnNum;
     
-    @Parameters(name = "{0}")
+    @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> getTestParameters() {
         return testUnits;
     }

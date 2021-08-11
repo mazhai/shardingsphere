@@ -19,6 +19,7 @@ package org.apache.shardingsphere.transaction.context.impl;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.shardingsphere.infra.database.DefaultSchema;
 import org.apache.shardingsphere.transaction.ShardingTransactionManagerEngine;
 import org.apache.shardingsphere.transaction.context.TransactionContexts;
 
@@ -36,6 +37,11 @@ public final class StandardTransactionContexts implements TransactionContexts {
     
     public StandardTransactionContexts() {
         this(new HashMap<>());
+    }
+    
+    @Override
+    public ShardingTransactionManagerEngine getDefaultTransactionManagerEngine() {
+        return engines.get(DefaultSchema.LOGIC_NAME);
     }
     
     @Override

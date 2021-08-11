@@ -6,7 +6,7 @@ weight = 3
 ## Configuration Item Explanation
 
 ```yaml
-dataSources: # Omit the data source configuration, please refer to the usage
+dataSource: # Omit the data source configuration, please refer to the usage
 
 rules:
 - !ENCRYPT

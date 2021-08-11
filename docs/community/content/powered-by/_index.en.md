@@ -13,12 +13,7 @@ Please register [here](https://github.com/apache/shardingsphere/issues/234) with
 
 ## Who are using ShardingSphere?
 
-Total: 169 companies.
-
-### Infra
-<ul>
-    <li><a href="http://www.sphere-ex.com/" rel="nofollow">SphereEx</a></li>
-</ul>
+Total: 168 companies.
 
 ### Financial Industry
 <ul>
@@ -251,7 +246,6 @@ Total: 169 companies.
     <li><a href="https://www.mytijian.com">Mytijian</a></li>
     <li><a href="https://cloud.guahao.cn/">WeDoctor Cloud</a></li>
     <li><a href="http://www.huxleymedical.tech/">Hualian Medical</a></li>
-    <li><a href="https://www.xingren.com/">xingren</a></li>
 </ul>
 
 <img src="https://shardingsphere.apache.org/community/image/powered-by.png" width = "30%" height = "30%" align="right" alt="Powered By ShardingSphere" />

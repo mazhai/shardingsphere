@@ -19,8 +19,6 @@ package org.apache.shardingsphere.infra.binder.statement.impl;
 
 import com.google.common.collect.Sets;
 import org.apache.shardingsphere.infra.binder.statement.dml.InsertStatementContext;
-import org.apache.shardingsphere.infra.database.DefaultSchema;
-import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.schema.ShardingSphereSchema;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.dml.assignment.AssignmentSegment;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.dml.assignment.InsertValuesSegment;
@@ -33,7 +31,6 @@ import org.apache.shardingsphere.sql.parser.sql.common.segment.dml.expr.simple.P
 import org.apache.shardingsphere.sql.parser.sql.common.segment.dml.expr.subquery.SubquerySegment;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.dml.item.ProjectionsSegment;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.generic.table.SimpleTableSegment;
-import org.apache.shardingsphere.sql.parser.sql.common.segment.generic.table.TableNameSegment;
 import org.apache.shardingsphere.sql.parser.sql.common.statement.dml.InsertStatement;
 import org.apache.shardingsphere.sql.parser.sql.common.statement.dml.SelectStatement;
 import org.apache.shardingsphere.sql.parser.sql.common.value.identifier.IdentifierValue;
@@ -88,50 +85,48 @@ public final class InsertStatementContextTest {
     }
     
     private void assertInsertStatementContextWithColumnNames(final InsertStatement insertStatement) {
-        insertStatement.setTable(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue("tbl"))));
+        insertStatement.setTable(new SimpleTableSegment(0, 0, new IdentifierValue("tbl")));
         InsertColumnsSegment insertColumnsSegment = new InsertColumnsSegment(0, 0, Arrays.asList(
                 new ColumnSegment(0, 0, new IdentifierValue("id")), new ColumnSegment(0, 0, new IdentifierValue("name")), new ColumnSegment(0, 0, new IdentifierValue("status"))));
         insertStatement.setInsertColumns(insertColumnsSegment);
         setUpInsertValues(insertStatement);
-        InsertStatementContext actual = createInsertStatementContext(Arrays.asList(1, "Tom", 2, "Jerry"), insertStatement);
+        InsertStatementContext actual = new InsertStatementContext(mock(ShardingSphereSchema.class), Arrays.asList(1, "Tom", 2, "Jerry"), insertStatement);
         assertInsertStatementContext(actual);
-    }
-    
-    private InsertStatementContext createInsertStatementContext(final List<Object> parameters, final InsertStatement insertStatement) {
-        ShardingSphereMetaData metaData = mock(ShardingSphereMetaData.class);
-        ShardingSphereSchema schema = mock(ShardingSphereSchema.class);
-        when(metaData.getSchema()).thenReturn(schema);
-        when(schema.getAllColumnNames("tbl")).thenReturn(Arrays.asList("id", "name", "status"));
-        return new InsertStatementContext(Collections.singletonMap(DefaultSchema.LOGIC_NAME, metaData), parameters, insertStatement, DefaultSchema.LOGIC_NAME);
     }
     
     @Test
     public void assertInsertStatementContextWithoutColumnNames() {
+        ShardingSphereSchema schema = mock(ShardingSphereSchema.class);
+        when(schema.getAllColumnNames("tbl")).thenReturn(Arrays.asList("id", "name", "status"));
         InsertStatement insertStatement = new MySQLInsertStatement();
-        insertStatement.setTable(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue("tbl"))));
+        insertStatement.setTable(new SimpleTableSegment(0, 0, new IdentifierValue("tbl")));
         setUpInsertValues(insertStatement);
-        InsertStatementContext actual = createInsertStatementContext(Arrays.asList(1, "Tom", 2, "Jerry"), insertStatement);
+        InsertStatementContext actual = new InsertStatementContext(schema, Arrays.asList(1, "Tom", 2, "Jerry"), insertStatement);
         assertInsertStatementContext(actual);
     }
     
     @Test
     public void assertGetGroupedParametersWithoutOnDuplicateParameter() {
+        ShardingSphereSchema schema = mock(ShardingSphereSchema.class);
+        when(schema.getAllColumnNames("tbl")).thenReturn(Arrays.asList("id", "name", "status"));
         InsertStatement insertStatement = new MySQLInsertStatement();
-        insertStatement.setTable(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue("tbl"))));
+        insertStatement.setTable(new SimpleTableSegment(0, 0, new IdentifierValue("tbl")));
         setUpInsertValues(insertStatement);
-        InsertStatementContext actual = createInsertStatementContext(Arrays.asList(1, "Tom", 2, "Jerry"), insertStatement);
+        InsertStatementContext actual = new InsertStatementContext(schema, Arrays.asList(1, "Tom", 2, "Jerry"), insertStatement);
         assertThat(actual.getGroupedParameters().size(), is(2));
         assertNull(actual.getOnDuplicateKeyUpdateValueContext());
-        assertTrue(actual.getOnDuplicateKeyUpdateParameters().isEmpty());
+        assertThat(actual.getOnDuplicateKeyUpdateParameters().size(), is(0));
     }
     
     @Test
     public void assertGetGroupedParametersWithOnDuplicateParameters() {
+        ShardingSphereSchema schema = mock(ShardingSphereSchema.class);
+        when(schema.getAllColumnNames("tbl")).thenReturn(Arrays.asList("id", "name", "status"));
         MySQLInsertStatement insertStatement = new MySQLInsertStatement();
-        insertStatement.setTable(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue("tbl"))));
+        insertStatement.setTable(new SimpleTableSegment(0, 0, new IdentifierValue("tbl")));
         setUpInsertValues(insertStatement);
         setUpOnDuplicateValues(insertStatement);
-        InsertStatementContext actual = createInsertStatementContext(Arrays.asList(1, "Tom", 2, "Jerry", "onDuplicateKeyUpdateColumnValue"), insertStatement);
+        InsertStatementContext actual = new InsertStatementContext(schema, Arrays.asList(1, "Tom", 2, "Jerry", "onDuplicateKeyUpdateColumnValue"), insertStatement);
         assertThat(actual.getGroupedParameters().size(), is(2));
         assertThat(actual.getOnDuplicateKeyUpdateValueContext().getColumns().size(), is(2));
         assertThat(actual.getOnDuplicateKeyUpdateParameters().size(), is(1));
@@ -139,13 +134,15 @@ public final class InsertStatementContextTest {
     
     @Test
     public void assertInsertSelect() {
+        ShardingSphereSchema schema = mock(ShardingSphereSchema.class);
+        when(schema.getAllColumnNames("tbl")).thenReturn(Arrays.asList("id", "name", "status"));
         InsertStatement insertStatement = new MySQLInsertStatement();
         SelectStatement selectStatement = new MySQLSelectStatement();
         selectStatement.setProjections(new ProjectionsSegment(0, 0));
         SubquerySegment insertSelect = new SubquerySegment(0, 0, selectStatement);
         insertStatement.setInsertSelect(insertSelect);
-        insertStatement.setTable(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue("tbl"))));
-        InsertStatementContext actual = createInsertStatementContext(Collections.singletonList("param"), insertStatement);
+        insertStatement.setTable(new SimpleTableSegment(0, 0, new IdentifierValue("tbl")));
+        InsertStatementContext actual = new InsertStatementContext(schema, Collections.singletonList("param"), insertStatement);
         assertThat(actual.getInsertSelectContext().getParameterCount(), is(0));
         assertThat(actual.getGroupedParameters().size(), is(1));
         assertThat(actual.getGroupedParameters().iterator().next(), is(Collections.emptyList()));
@@ -216,8 +213,8 @@ public final class InsertStatementContextTest {
     }
     
     private void assertUseDefaultColumns(final InsertStatement insertStatement) {
-        insertStatement.setTable(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue(""))));
-        InsertStatementContext insertStatementContext = createInsertStatementContext(Collections.emptyList(), insertStatement);
+        insertStatement.setTable(new SimpleTableSegment(0, 0, new IdentifierValue("")));
+        InsertStatementContext insertStatementContext = new InsertStatementContext(new ShardingSphereSchema(), Collections.emptyList(), insertStatement);
         assertTrue(insertStatementContext.useDefaultColumns());
     }
     
@@ -249,8 +246,8 @@ public final class InsertStatementContextTest {
     private void assertNotUseDefaultColumnsWithColumns(final InsertStatement insertStatement) {
         InsertColumnsSegment insertColumnsSegment = new InsertColumnsSegment(0, 0, Collections.singletonList(new ColumnSegment(0, 0, new IdentifierValue("col"))));
         insertStatement.setInsertColumns(insertColumnsSegment);
-        insertStatement.setTable(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue(""))));
-        InsertStatementContext insertStatementContext = createInsertStatementContext(Collections.emptyList(), insertStatement);
+        insertStatement.setTable(new SimpleTableSegment(0, 0, new IdentifierValue("")));
+        InsertStatementContext insertStatementContext = new InsertStatementContext(new ShardingSphereSchema(), Collections.emptyList(), insertStatement);
         assertFalse(insertStatementContext.useDefaultColumns());
     }
     
@@ -258,8 +255,8 @@ public final class InsertStatementContextTest {
     public void assertNotUseDefaultColumnsWithSetAssignmentForMySQL() {
         MySQLInsertStatement insertStatement = new MySQLInsertStatement();
         insertStatement.setSetAssignment(new SetAssignmentSegment(0, 0, Collections.emptyList()));
-        insertStatement.setTable(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue(""))));
-        InsertStatementContext insertStatementContext = createInsertStatementContext(Collections.emptyList(), insertStatement);
+        insertStatement.setTable(new SimpleTableSegment(0, 0, new IdentifierValue("")));
+        InsertStatementContext insertStatementContext = new InsertStatementContext(new ShardingSphereSchema(), Collections.emptyList(), insertStatement);
         assertFalse(insertStatementContext.useDefaultColumns());
     }
     
@@ -291,8 +288,8 @@ public final class InsertStatementContextTest {
     private void assertGetValueListCountWithValues(final InsertStatement insertStatement) {
         insertStatement.getValues().add(new InsertValuesSegment(0, 0, Collections.singletonList(new LiteralExpressionSegment(0, 0, 1))));
         insertStatement.getValues().add(new InsertValuesSegment(0, 0, Collections.singletonList(new LiteralExpressionSegment(0, 0, 2))));
-        insertStatement.setTable(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue(""))));
-        InsertStatementContext insertStatementContext = createInsertStatementContext(Collections.emptyList(), insertStatement);
+        insertStatement.setTable(new SimpleTableSegment(0, 0, new IdentifierValue("")));
+        InsertStatementContext insertStatementContext = new InsertStatementContext(new ShardingSphereSchema(), Collections.emptyList(), insertStatement);
         assertThat(insertStatementContext.getValueListCount(), is(2));
     }
     
@@ -301,8 +298,8 @@ public final class InsertStatementContextTest {
         MySQLInsertStatement insertStatement = new MySQLInsertStatement();
         insertStatement.setSetAssignment(new SetAssignmentSegment(0, 0, Collections.singletonList(new AssignmentSegment(0, 0,
                 new ColumnSegment(0, 0, new IdentifierValue("col")), new LiteralExpressionSegment(0, 0, 1)))));
-        insertStatement.setTable(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue(""))));
-        InsertStatementContext insertStatementContext = createInsertStatementContext(Collections.emptyList(), insertStatement);
+        insertStatement.setTable(new SimpleTableSegment(0, 0, new IdentifierValue("")));
+        InsertStatementContext insertStatementContext = new InsertStatementContext(new ShardingSphereSchema(), Collections.emptyList(), insertStatement);
         assertThat(insertStatementContext.getValueListCount(), is(1));
     }
     
@@ -334,8 +331,8 @@ public final class InsertStatementContextTest {
     private void assertGetInsertColumnNamesForInsertColumns(final InsertStatement insertStatement) {
         InsertColumnsSegment insertColumnsSegment = new InsertColumnsSegment(0, 0, Collections.singletonList(new ColumnSegment(0, 0, new IdentifierValue("col"))));
         insertStatement.setInsertColumns(insertColumnsSegment);
-        insertStatement.setTable(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue(""))));
-        InsertStatementContext insertStatementContext = createInsertStatementContext(Collections.emptyList(), insertStatement);
+        insertStatement.setTable(new SimpleTableSegment(0, 0, new IdentifierValue("")));
+        InsertStatementContext insertStatementContext = new InsertStatementContext(new ShardingSphereSchema(), Collections.emptyList(), insertStatement);
         List<String> columnNames = insertStatementContext.getInsertColumnNames();
         assertThat(columnNames.size(), is(1));
         assertThat(columnNames.iterator().next(), is("col"));
@@ -346,8 +343,8 @@ public final class InsertStatementContextTest {
         MySQLInsertStatement insertStatement = new MySQLInsertStatement();
         insertStatement.setSetAssignment(new SetAssignmentSegment(0, 0, Collections.singletonList(new AssignmentSegment(0, 0,
                 new ColumnSegment(0, 0, new IdentifierValue("col")), new LiteralExpressionSegment(0, 0, 1)))));
-        insertStatement.setTable(new SimpleTableSegment(new TableNameSegment(0, 0, new IdentifierValue(""))));
-        InsertStatementContext insertStatementContext = createInsertStatementContext(Collections.emptyList(), insertStatement);
+        insertStatement.setTable(new SimpleTableSegment(0, 0, new IdentifierValue("")));
+        InsertStatementContext insertStatementContext = new InsertStatementContext(new ShardingSphereSchema(), Collections.emptyList(), insertStatement);
         List<String> columnNames = insertStatementContext.getInsertColumnNames();
         assertThat(columnNames.size(), is(1));
         assertThat(columnNames.iterator().next(), is("col"));

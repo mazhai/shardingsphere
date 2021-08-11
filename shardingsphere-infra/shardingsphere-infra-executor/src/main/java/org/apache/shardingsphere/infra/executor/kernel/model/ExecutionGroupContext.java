@@ -22,8 +22,6 @@ import lombok.Getter;
 import java.util.Collection;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.apache.shardingsphere.infra.metadata.user.Grantee;
 
 /**
  * Execution group context.
@@ -32,14 +30,9 @@ import org.apache.shardingsphere.infra.metadata.user.Grantee;
  */
 @RequiredArgsConstructor
 @Getter
-@Setter
 public final class ExecutionGroupContext<T> {
     
     private final Collection<ExecutionGroup<T>> inputGroups;
     
     private final String executionID = UUID.randomUUID().toString();
-    
-    private volatile String schemaName;
-    
-    private volatile Grantee grantee;
 }

@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.infra.binder.segment.insert.values;
 
+import com.google.common.collect.Lists;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.dml.expr.simple.LiteralExpressionSegment;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.dml.expr.simple.ParameterMarkerExpressionSegment;
@@ -36,7 +37,7 @@ public final class InsertValueContextTest {
     @SuppressWarnings("unchecked")
     @Test
     public void assertInstanceConstructedOk() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Collection<ExpressionSegment> assignments = Collections.emptyList();
+        Collection<ExpressionSegment> assignments = Lists.newArrayList();
         List<Object> parameters = Collections.emptyList();
         int parametersOffset = 0;
         InsertValueContext insertValueContext = new InsertValueContext(assignments, parameters, parametersOffset);

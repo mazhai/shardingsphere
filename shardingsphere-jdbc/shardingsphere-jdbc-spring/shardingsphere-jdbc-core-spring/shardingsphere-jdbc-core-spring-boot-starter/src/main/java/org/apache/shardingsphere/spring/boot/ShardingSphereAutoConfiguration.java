@@ -22,7 +22,6 @@ import org.apache.shardingsphere.driver.api.ShardingSphereDataSourceFactory;
 import org.apache.shardingsphere.infra.config.RuleConfiguration;
 import org.apache.shardingsphere.spring.boot.datasource.DataSourceMapSetter;
 import org.apache.shardingsphere.spring.boot.prop.SpringBootPropertiesConfiguration;
-import org.apache.shardingsphere.spring.boot.schema.SchemaNameSetter;
 import org.apache.shardingsphere.spring.transaction.ShardingTransactionTypeScanner;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +55,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ShardingSphereAutoConfiguration implements EnvironmentAware {
     
-    private String schemaName;
-    
     private final SpringBootPropertiesConfiguration props;
     
     private final Map<String, DataSource> dataSourceMap = new LinkedHashMap<>();
@@ -73,7 +70,7 @@ public class ShardingSphereAutoConfiguration implements EnvironmentAware {
     @Autowired(required = false)
     public DataSource shardingSphereDataSource(final ObjectProvider<List<RuleConfiguration>> rules) throws SQLException {
         Collection<RuleConfiguration> ruleConfigurations = Optional.ofNullable(rules.getIfAvailable()).orElse(Collections.emptyList());
-        return ShardingSphereDataSourceFactory.createDataSource(schemaName, dataSourceMap, ruleConfigurations, props.getProps());
+        return ShardingSphereDataSourceFactory.createDataSource(dataSourceMap, ruleConfigurations, props.getProps());
     }
     
     /**
@@ -89,6 +86,5 @@ public class ShardingSphereAutoConfiguration implements EnvironmentAware {
     @Override
     public final void setEnvironment(final Environment environment) {
         dataSourceMap.putAll(DataSourceMapSetter.getDataSourceMap(environment));
-        schemaName = SchemaNameSetter.getSchemaName(environment);
     }
 }

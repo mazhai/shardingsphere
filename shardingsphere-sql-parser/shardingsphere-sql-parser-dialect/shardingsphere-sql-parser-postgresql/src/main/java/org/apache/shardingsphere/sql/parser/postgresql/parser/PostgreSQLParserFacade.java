@@ -19,12 +19,17 @@ package org.apache.shardingsphere.sql.parser.postgresql.parser;
 
 import org.apache.shardingsphere.sql.parser.api.parser.SQLLexer;
 import org.apache.shardingsphere.sql.parser.api.parser.SQLParser;
-import org.apache.shardingsphere.sql.parser.spi.DatabaseTypedSQLParserFacade;
+import org.apache.shardingsphere.sql.parser.spi.SQLParserFacade;
 
 /**
  * SQL parser facade for PostgreSQL.
  */
-public final class PostgreSQLParserFacade implements DatabaseTypedSQLParserFacade {
+public final class PostgreSQLParserFacade implements SQLParserFacade {
+    
+    @Override
+    public String getDatabaseType() {
+        return "PostgreSQL";
+    }
     
     @Override
     public Class<? extends SQLLexer> getLexerClass() {
@@ -34,10 +39,5 @@ public final class PostgreSQLParserFacade implements DatabaseTypedSQLParserFacad
     @Override
     public Class<? extends SQLParser> getParserClass() {
         return PostgreSQLParser.class;
-    }
-    
-    @Override
-    public String getDatabaseType() {
-        return "PostgreSQL";
     }
 }

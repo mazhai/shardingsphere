@@ -18,17 +18,15 @@
 package org.apache.shardingsphere.driver.jdbc.core.datasource;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.driver.jdbc.core.connection.ShardingSphereConnection;
 import org.apache.shardingsphere.driver.jdbc.unsupported.AbstractUnsupportedOperationDataSource;
 import org.apache.shardingsphere.infra.config.RuleConfiguration;
 import org.apache.shardingsphere.infra.config.properties.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.context.metadata.MetaDataContexts;
 import org.apache.shardingsphere.infra.context.metadata.MetaDataContextsBuilder;
+import org.apache.shardingsphere.infra.database.DefaultSchema;
 import org.apache.shardingsphere.infra.database.type.DatabaseType;
-import org.apache.shardingsphere.infra.mode.ShardingSphereMode;
-import org.apache.shardingsphere.infra.mode.impl.standalone.StandaloneMode;
-import org.apache.shardingsphere.infra.persist.DistMetaDataPersistService;
-import org.apache.shardingsphere.infra.persist.repository.local.LocalPersistRepository;
 import org.apache.shardingsphere.transaction.ShardingTransactionManagerEngine;
 import org.apache.shardingsphere.transaction.context.TransactionContexts;
 import org.apache.shardingsphere.transaction.context.impl.StandardTransactionContexts;
@@ -44,39 +42,30 @@ import java.util.Properties;
 /**
  * ShardingSphere data source.
  */
+@RequiredArgsConstructor
 @Getter
 public final class ShardingSphereDataSource extends AbstractUnsupportedOperationDataSource implements AutoCloseable {
-    
-    private final String schemaName;
     
     private final MetaDataContexts metaDataContexts;
     
     private final TransactionContexts transactionContexts;
     
-    // TODO remove default constructor
-    public ShardingSphereDataSource(final String schemaName, final Map<String, DataSource> dataSourceMap, final Collection<RuleConfiguration> ruleConfigs, final Properties props) throws SQLException {
-        this(schemaName, dataSourceMap, ruleConfigs, props, new StandaloneMode(new LocalPersistRepository()));
-    }
-    
-    public ShardingSphereDataSource(final String schemaName, final Map<String, DataSource> dataSourceMap, 
-                                    final Collection<RuleConfiguration> ruleConfigs, final Properties props, final ShardingSphereMode mode) throws SQLException {
-        this.schemaName = schemaName;
-        DistMetaDataPersistService persistService = mode.getPersistRepository().isPresent() ? new DistMetaDataPersistService(mode.getPersistRepository().get()) : null;
+    public ShardingSphereDataSource(final Map<String, DataSource> dataSourceMap, final Collection<RuleConfiguration> configurations, final Properties props) throws SQLException {
         metaDataContexts = new MetaDataContextsBuilder(
-                Collections.singletonMap(schemaName, dataSourceMap), Collections.singletonMap(schemaName, ruleConfigs), props).build(persistService);
+                Collections.singletonMap(DefaultSchema.LOGIC_NAME, dataSourceMap), Collections.singletonMap(DefaultSchema.LOGIC_NAME, configurations), props).build();
         String xaTransactionMangerType = metaDataContexts.getProps().getValue(ConfigurationPropertyKey.XA_TRANSACTION_MANAGER_TYPE);
-        transactionContexts = createTransactionContexts(metaDataContexts.getMetaData(schemaName).getResource().getDatabaseType(), dataSourceMap, xaTransactionMangerType);
+        transactionContexts = createTransactionContexts(metaDataContexts.getDefaultMetaData().getResource().getDatabaseType(), dataSourceMap, xaTransactionMangerType);
     }
     
     private TransactionContexts createTransactionContexts(final DatabaseType databaseType, final Map<String, DataSource> dataSourceMap, final String xaTransactionMangerType) {
         ShardingTransactionManagerEngine engine = new ShardingTransactionManagerEngine();
         engine.init(databaseType, dataSourceMap, xaTransactionMangerType);
-        return new StandardTransactionContexts(Collections.singletonMap(schemaName, engine));
+        return new StandardTransactionContexts(Collections.singletonMap(DefaultSchema.LOGIC_NAME, engine));
     }
     
     @Override
     public ShardingSphereConnection getConnection() {
-        return new ShardingSphereConnection(schemaName, getDataSourceMap(), metaDataContexts, transactionContexts, TransactionTypeHolder.get());
+        return new ShardingSphereConnection(getDataSourceMap(), metaDataContexts, transactionContexts, TransactionTypeHolder.get());
     }
     
     @Override
@@ -90,7 +79,7 @@ public final class ShardingSphereDataSource extends AbstractUnsupportedOperation
      * @return data sources
      */
     public Map<String, DataSource> getDataSourceMap() {
-        return metaDataContexts.getMetaData(schemaName).getResource().getDataSources();
+        return metaDataContexts.getDefaultMetaData().getResource().getDataSources();
     }
     
     @Override

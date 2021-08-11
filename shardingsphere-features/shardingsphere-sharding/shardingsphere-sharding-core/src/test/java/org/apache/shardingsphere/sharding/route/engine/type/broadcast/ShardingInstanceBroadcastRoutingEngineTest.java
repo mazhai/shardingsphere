@@ -17,6 +17,7 @@
 
 package org.apache.shardingsphere.sharding.route.engine.type.broadcast;
 
+import com.google.common.collect.Lists;
 import org.apache.shardingsphere.infra.metadata.resource.DataSourcesMetaData;
 import org.apache.shardingsphere.infra.route.context.RouteContext;
 import org.apache.shardingsphere.sharding.rule.ShardingRule;
@@ -48,7 +49,7 @@ public final class ShardingInstanceBroadcastRoutingEngineTest {
     @Before
     public void setUp() {
         when(shardingRule.getDataSourceNames()).thenReturn(Collections.singletonList(DATASOURCE_NAME));
-        when(dataSourcesMetaData.getAllInstanceDataSourceNames()).thenReturn(Collections.singleton(DATASOURCE_NAME));
+        when(dataSourcesMetaData.getAllInstanceDataSourceNames()).thenReturn(Lists.newArrayList(DATASOURCE_NAME));
         shardingInstanceBroadcastRoutingEngine = new ShardingInstanceBroadcastRoutingEngine(dataSourcesMetaData);
     }
     

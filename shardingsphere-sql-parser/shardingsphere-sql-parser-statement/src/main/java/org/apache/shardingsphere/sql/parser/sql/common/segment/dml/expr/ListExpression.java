@@ -24,9 +24,9 @@ import lombok.Setter;
 import java.util.LinkedList;
 import java.util.List;
 
-@RequiredArgsConstructor
-@Getter
 @Setter
+@Getter
+@RequiredArgsConstructor
 public final class ListExpression implements ExpressionSegment {
     
     private final int startIndex;

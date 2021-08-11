@@ -37,7 +37,7 @@ import java.util.Optional;
  * Condition value generator for between operator.
  */
 public final class ConditionValueBetweenOperatorGenerator implements ConditionValueGenerator<BetweenExpression> {
-    
+
     @Override
     public Optional<ShardingConditionValue> generate(final BetweenExpression predicate, final Column column, final List<Object> parameters) {
         Optional<Comparable<?>> betweenConditionValue = new ConditionValue(predicate.getBetweenExpr(), parameters).getValue();

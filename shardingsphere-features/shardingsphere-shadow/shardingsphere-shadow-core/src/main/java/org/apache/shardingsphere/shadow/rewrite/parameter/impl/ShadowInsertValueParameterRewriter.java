@@ -19,11 +19,12 @@ package org.apache.shardingsphere.shadow.rewrite.parameter.impl;
 
 import org.apache.shardingsphere.infra.rewrite.parameter.builder.ParameterBuilder;
 import org.apache.shardingsphere.infra.rewrite.parameter.builder.impl.GroupedParameterBuilder;
+import org.apache.shardingsphere.infra.rewrite.parameter.builder.impl.StandardParameterBuilder;
 import org.apache.shardingsphere.shadow.rewrite.parameter.ShadowParameterRewriter;
 import org.apache.shardingsphere.infra.binder.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.binder.statement.dml.InsertStatementContext;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,39 +34,31 @@ public final class ShadowInsertValueParameterRewriter extends ShadowParameterRew
     
     @Override
     protected boolean isNeedRewriteForShadow(final SQLStatementContext sqlStatementContext) {
-        return sqlStatementContext instanceof InsertStatementContext && isContainShadowColumn((InsertStatementContext) sqlStatementContext);
-    }
-    
-    private boolean isContainShadowColumn(final InsertStatementContext insertStatementContext) {
-        return insertStatementContext.getInsertColumnNames().contains(getShadowColumn());
+        return sqlStatementContext instanceof InsertStatementContext && ((InsertStatementContext) sqlStatementContext).getInsertColumnNames().contains(getShadowRule().getColumn());
     }
     
     @Override
     public void rewrite(final ParameterBuilder parameterBuilder, final InsertStatementContext insertStatementContext, final List<Object> parameters) {
-        doShadowRewrite(parameterBuilder, insertStatementContext);
-    }
-
-    private void doShadowRewrite(final ParameterBuilder parameterBuilder, final InsertStatementContext insertStatementContext) {
-        if (parameterBuilder instanceof GroupedParameterBuilder) {
-            GroupedParameterBuilder groupedParameterBuilder = (GroupedParameterBuilder) parameterBuilder;
-            int columnIndex = getShadowColumnIndex(groupedParameterBuilder, insertStatementContext);
-            addRemovedParametersForShadow(groupedParameterBuilder, insertStatementContext, columnIndex);
-        }
-    }
-
-    private void addRemovedParametersForShadow(final GroupedParameterBuilder groupedParameterBuilder, final InsertStatementContext insertStatementContext, final int columnIndex) {
+        String columnName = getShadowRule().getColumn();
+        int columnIndex = getColumnIndex((GroupedParameterBuilder) parameterBuilder, insertStatementContext, columnName);
         int count = 0;
         for (List<Object> each : insertStatementContext.getGroupedParameters()) {
             if (!each.isEmpty()) {
-                groupedParameterBuilder.getParameterBuilders().get(count).addRemovedParameters(columnIndex);
+                StandardParameterBuilder standardParameterBuilder = ((GroupedParameterBuilder) parameterBuilder).getParameterBuilders().get(count);
+                standardParameterBuilder.addRemovedParameters(columnIndex);
             }
             count++;
         }
     }
-
-    private int getShadowColumnIndex(final GroupedParameterBuilder groupedParameterBuilder, final InsertStatementContext insertStatementContext) {
-        List<String> columnNames = new LinkedList<>(insertStatementContext.getColumnNames());
-        groupedParameterBuilder.getDerivedColumnName().ifPresent(columnNames::remove);
-        return columnNames.indexOf(getShadowColumn());
+    
+    private int getColumnIndex(final GroupedParameterBuilder parameterBuilder, final InsertStatementContext insertStatementContext, final String shadowColumnName) {
+        List<String> columnNames;
+        if (parameterBuilder.getDerivedColumnName().isPresent()) {
+            columnNames = new ArrayList<>(insertStatementContext.getColumnNames());
+            columnNames.remove(parameterBuilder.getDerivedColumnName().get());
+        } else {
+            columnNames = insertStatementContext.getColumnNames();
+        }
+        return columnNames.indexOf(shadowColumnName);
     }
 }

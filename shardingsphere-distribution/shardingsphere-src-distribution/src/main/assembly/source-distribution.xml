@@ -47,7 +47,6 @@
                 
                 <!-- maven plugin ignore -->
                 <exclude>release.properties</exclude>
-                <exclude>**/dependency-reduced-pom.xml</exclude>
                 <exclude>**/pom.xml.releaseBackup</exclude>
                 <exclude>**/cobertura.ser</exclude>
                 <exclude>*.gpg</exclude>
@@ -77,6 +76,7 @@
                 <exclude>**/Thumbs.db</exclude>
     
                 <!-- modules ignore -->
+                <exclude>shardingsphere-ui/**</exclude>
                 <exclude>docs/**</exclude>
                 <exclude>examples/**</exclude>
             </excludes>

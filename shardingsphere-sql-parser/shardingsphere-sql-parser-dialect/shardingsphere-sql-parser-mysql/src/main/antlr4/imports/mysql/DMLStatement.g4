@@ -138,12 +138,8 @@ queryExpression
 
 queryExpressionBody
     : queryPrimary
-    | queryExpressionParens unionClause
-    | queryExpressionBody unionClause
-    ;
-
-unionClause
-    : UNION unionOption? (queryPrimary | queryExpressionParens)
+    | queryExpressionParens UNION unionOption? (queryPrimary | queryExpressionParens)
+    | queryExpressionBody UNION unionOption? (queryPrimary | queryExpressionParens)
     ;
 
 queryExpressionParens

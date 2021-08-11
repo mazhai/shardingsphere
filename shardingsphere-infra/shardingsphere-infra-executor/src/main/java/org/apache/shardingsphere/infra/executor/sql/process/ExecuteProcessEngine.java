@@ -19,7 +19,6 @@ package org.apache.shardingsphere.infra.executor.sql.process;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.shardingsphere.infra.binder.LogicSQL;
 import org.apache.shardingsphere.infra.binder.statement.SQLStatementContext;
 import org.apache.shardingsphere.infra.config.properties.ConfigurationProperties;
 import org.apache.shardingsphere.infra.executor.kernel.model.ExecutionGroupContext;
@@ -47,15 +46,14 @@ public final class ExecuteProcessEngine {
     /**
      * Initialize.
      *
-     * @param logicSQL logic SQL
+     * @param context context
      * @param executionGroupContext execution group context
      * @param props configuration properties
      */
-    public static void initialize(final LogicSQL logicSQL, final ExecutionGroupContext<? extends SQLExecutionUnit> executionGroupContext, final ConfigurationProperties props) {
-        SQLStatementContext<?> context = logicSQL.getSqlStatementContext();
+    public static void initialize(final SQLStatementContext<?> context, final ExecutionGroupContext<? extends SQLExecutionUnit> executionGroupContext, final ConfigurationProperties props) {
         if (!HANDLERS.isEmpty() && ExecuteProcessStrategyEvaluator.evaluate(context, executionGroupContext, props)) {
             ExecutorDataMap.getValue().put(ExecuteProcessConstants.EXECUTE_ID.name(), executionGroupContext.getExecutionID());
-            HANDLERS.iterator().next().report(logicSQL, executionGroupContext, ExecuteProcessConstants.EXECUTE_STATUS_START);
+            HANDLERS.iterator().next().report(context, executionGroupContext, ExecuteProcessConstants.EXECUTE_STATUS_START);
         }
     }
     

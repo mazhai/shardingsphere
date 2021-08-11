@@ -33,9 +33,9 @@ public abstract class AbstractSQLParserEngineAdviceTest implements AdviceTestBas
     
     private Object attachment;
     
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings("all")
     @Override
-    public final void prepare() {
+    public void prepare() {
         Object parserEngine = mock(ShardingSphereSQLParserEngine.class, invocation -> {
             switch (invocation.getMethod().getName()) {
                 case "getAttachment":

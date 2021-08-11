@@ -68,11 +68,12 @@ public interface DatabaseDiscoveryType extends ShardingSphereAlgorithm {
      * @param groupName group name
      */
     void startPeriodicalUpdate(Map<String, DataSource> dataSourceMap, String schemaName, Collection<String> disabledDataSourceNames, String groupName, String primaryDataSourceName);
-    
+
     /**
      * Get primary data source.
      *
      * @return primary data source
      */
     String getPrimaryDataSource();
+    
 }

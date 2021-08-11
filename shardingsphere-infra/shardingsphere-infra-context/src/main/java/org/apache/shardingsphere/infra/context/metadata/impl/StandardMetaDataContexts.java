@@ -18,9 +18,9 @@
 package org.apache.shardingsphere.infra.context.metadata.impl;
 
 import lombok.Getter;
-import org.apache.shardingsphere.infra.persist.DistMetaDataPersistService;
 import org.apache.shardingsphere.infra.config.properties.ConfigurationProperties;
 import org.apache.shardingsphere.infra.context.metadata.MetaDataContexts;
+import org.apache.shardingsphere.infra.database.DefaultSchema;
 import org.apache.shardingsphere.infra.executor.kernel.ExecutorEngine;
 import org.apache.shardingsphere.infra.lock.ShardingSphereLock;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
@@ -30,7 +30,6 @@ import org.apache.shardingsphere.infra.state.StateContext;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -41,8 +40,6 @@ import java.util.Properties;
  */
 @Getter
 public final class StandardMetaDataContexts implements MetaDataContexts {
-    
-    private final DistMetaDataPersistService distMetaDataPersistService;
     
     private final Map<String, ShardingSphereMetaData> metaDataMap;
     
@@ -56,25 +53,19 @@ public final class StandardMetaDataContexts implements MetaDataContexts {
     
     private final StateContext stateContext;
     
-    public StandardMetaDataContexts(final DistMetaDataPersistService persistService) {
-        this(persistService, new LinkedHashMap<>(), new ShardingSphereRuleMetaData(Collections.emptyList(), Collections.emptyList()),
-                null, new ConfigurationProperties(new Properties()), new OptimizeContextFactory(new HashMap<>()));
+    public StandardMetaDataContexts() {
+        this(new LinkedHashMap<>(), 
+                new ShardingSphereRuleMetaData(Collections.emptyList(), Collections.emptyList()), null, new ConfigurationProperties(new Properties()));
     }
     
-    public StandardMetaDataContexts(final DistMetaDataPersistService persistService, final Map<String, ShardingSphereMetaData> metaDataMap, final ShardingSphereRuleMetaData globalRuleMetaData,
-                                    final ExecutorEngine executorEngine, final ConfigurationProperties props, final OptimizeContextFactory optimizeContextFactory) {
-        this.distMetaDataPersistService = persistService;
+    public StandardMetaDataContexts(final Map<String, ShardingSphereMetaData> metaDataMap, final ShardingSphereRuleMetaData globalRuleMetaData, 
+                                    final ExecutorEngine executorEngine, final ConfigurationProperties props) {
         this.metaDataMap = new LinkedHashMap<>(metaDataMap);
         this.globalRuleMetaData = globalRuleMetaData;
         this.executorEngine = executorEngine;
-        this.optimizeContextFactory = optimizeContextFactory;
+        optimizeContextFactory = new OptimizeContextFactory(metaDataMap);
         this.props = props;
         stateContext = new StateContext();
-    }
-    
-    @Override
-    public Optional<DistMetaDataPersistService> getDistMetaDataPersistService() {
-        return Optional.ofNullable(distMetaDataPersistService);
     }
     
     @Override
@@ -85,6 +76,11 @@ public final class StandardMetaDataContexts implements MetaDataContexts {
     @Override
     public ShardingSphereMetaData getMetaData(final String schemaName) {
         return metaDataMap.get(schemaName);
+    }
+    
+    @Override
+    public ShardingSphereMetaData getDefaultMetaData() {
+        return getMetaData(DefaultSchema.LOGIC_NAME);
     }
     
     @Override

@@ -17,41 +17,39 @@
 
 package org.apache.shardingsphere.agent.metrics.api.advice;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.shardingsphere.agent.api.advice.AdviceTargetObject;
+import java.lang.reflect.Method;
 import org.apache.shardingsphere.agent.api.advice.InstanceMethodAroundAdvice;
 import org.apache.shardingsphere.agent.api.result.MethodInvocationResult;
-import org.apache.shardingsphere.agent.metrics.api.MetricsPool;
-import org.apache.shardingsphere.agent.metrics.api.MetricsWrapper;
-import org.apache.shardingsphere.agent.metrics.api.constant.MetricIds;
-
-import java.lang.reflect.Method;
+import org.apache.shardingsphere.agent.api.advice.AdviceTargetObject;
+import org.apache.shardingsphere.agent.metrics.api.reporter.MetricsReporter;
+import org.apache.shardingsphere.agent.metrics.api.constant.MethodNameConstant;
 
 /**
  * Channel handler advice.
  */
-@Slf4j
 public final class ChannelHandlerAdvice implements InstanceMethodAroundAdvice {
     
-    public static final String CHANNEL_READ = "channelRead";
+    private static final String REQUEST_TOTAL = "proxy_request_total";
     
-    public static final String CHANNEL_ACTIVE = "channelActive";
-    
-    public static final String CHANNEL_INACTIVE = "channelInactive";
+    private static final String COLLECTION_TOTAL = "proxy_connection_total";
     
     static {
-        MetricsPool.create(MetricIds.PROXY_REQUEST);
-        MetricsPool.create(MetricIds.PROXY_COLLECTION);
+        MetricsReporter.registerCounter(REQUEST_TOTAL, "the shardingsphere proxy request total");
+        MetricsReporter.registerGauge(COLLECTION_TOTAL, "the shardingsphere proxy connection total");
     }
     
     @Override
     public void beforeMethod(final AdviceTargetObject target, final Method method, final Object[] args, final MethodInvocationResult result) {
-        if (CHANNEL_READ.equals(method.getName())) {
-            MetricsPool.get(MetricIds.PROXY_REQUEST).ifPresent(MetricsWrapper::inc);
-        } else if (CHANNEL_ACTIVE.equals(method.getName())) {
-            MetricsPool.get(MetricIds.PROXY_COLLECTION).ifPresent(MetricsWrapper::inc);
-        } else if (CHANNEL_INACTIVE.equals(method.getName())) {
-            MetricsPool.get(MetricIds.PROXY_COLLECTION).ifPresent(MetricsWrapper::dec);
+        collectMetrics(method.getName());
+    }
+    
+    private void collectMetrics(final String methodName) {
+        if (MethodNameConstant.CHANNEL_READ.equals(methodName)) {
+            MetricsReporter.counterIncrement(REQUEST_TOTAL);
+        } else if (MethodNameConstant.CHANNEL_ACTIVE.equals(methodName)) {
+            MetricsReporter.gaugeIncrement(COLLECTION_TOTAL);
+        } else if (MethodNameConstant.CHANNEL_INACTIVE.equals(methodName)) {
+            MetricsReporter.gaugeDecrement(COLLECTION_TOTAL);
         }
     }
 }

@@ -33,7 +33,6 @@ import org.apache.shardingsphere.infra.executor.sql.federate.schema.table.genera
 import org.apache.shardingsphere.infra.executor.sql.federate.schema.table.generator.FederateExecutionSQLGenerator;
 import org.apache.shardingsphere.infra.executor.sql.prepare.driver.DriverExecutionPrepareEngine;
 import org.apache.shardingsphere.infra.executor.sql.process.ExecuteProcessEngine;
-import org.apache.shardingsphere.infra.optimize.core.metadata.FederateTableMetadata;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -60,22 +59,21 @@ public final class FederateRowExecutor {
     /**
      * Execute.
      *
-     * @param metadata metadata
+     * @param logicTable logic table
      * @param root root
      * @param filters filter
      * @param projects projects
      * @return a query result list
      */
-    public Collection<QueryResult> execute(final FederateTableMetadata metadata, final DataContext root, final List<RexNode> filters, final int[] projects) {
-        FederateExecutionContextGenerator generator = new FederateExecutionContextGenerator(metadata.getName(), routeExecutionContext, 
-                new FederateExecutionSQLGenerator(root, filters, projects, metadata.getColumnNames()));
+    public Collection<QueryResult> execute(final String logicTable, final DataContext root, final List<RexNode> filters, final int[] projects) {
+        FederateExecutionContextGenerator generator = new FederateExecutionContextGenerator(logicTable, routeExecutionContext, new FederateExecutionSQLGenerator(root, filters, projects));
         return execute(generator.generate());
     }
     
     private Collection<QueryResult> execute(final ExecutionContext context) {
         try {
             ExecutionGroupContext<JDBCExecutionUnit> executionGroupContext = prepareEngine.prepare(context.getRouteContext(), context.getExecutionUnits());
-            ExecuteProcessEngine.initialize(context.getLogicSQL(), executionGroupContext, props);
+            ExecuteProcessEngine.initialize(context.getSqlStatementContext(), executionGroupContext, props);
             Collection<QueryResult> result = jdbcExecutor.execute(executionGroupContext, callback).stream().map(each -> (QueryResult) each).collect(Collectors.toList());
             ExecuteProcessEngine.finish(executionGroupContext.getExecutionID());
             return result;

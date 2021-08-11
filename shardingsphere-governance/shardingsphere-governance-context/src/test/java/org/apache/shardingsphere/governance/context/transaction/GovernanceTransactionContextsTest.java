@@ -18,8 +18,6 @@
 package org.apache.shardingsphere.governance.context.transaction;
 
 import org.apache.shardingsphere.governance.core.registry.config.event.datasource.DataSourceChangeCompletedEvent;
-import org.apache.shardingsphere.governance.core.registry.config.event.datasource.DataSourceDeletedEvent;
-import org.apache.shardingsphere.infra.database.type.DatabaseType;
 import org.apache.shardingsphere.transaction.ShardingTransactionManagerEngine;
 import org.apache.shardingsphere.transaction.context.TransactionContexts;
 import org.apache.shardingsphere.transaction.core.XATransactionManagerType;
@@ -28,12 +26,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,24 +46,37 @@ public final class GovernanceTransactionContextsTest {
     private ShardingTransactionManagerEngine engine;
     
     @Mock
-    private Map<String, ShardingTransactionManagerEngine> engines;
+    private Map<String, ShardingTransactionManagerEngine> engineMap;
+    
+    @Mock
+    private DataSourceChangeCompletedEvent event;
     
     @Test
-    public void assertRenew() throws Exception {
-        DataSourceChangeCompletedEvent event = new DataSourceChangeCompletedEvent("name", mock(DatabaseType.class), Collections.emptyMap());
+    public void assertNewInstance() {
+        when(transactionContexts.getDefaultTransactionManagerEngine()).thenReturn(engine);
+        Map<String, ShardingTransactionManagerEngine> engines = new HashMap<>(1, 1);
+        engines.put("name", engine);
         when(transactionContexts.getEngines()).thenReturn(engines);
-        when(engines.remove("name")).thenReturn(engine);
-        new GovernanceTransactionContexts(transactionContexts, XATransactionManagerType.ATOMIKOS.getType()).renew(event);
-        verify(engine).close();
-        verify(engines).put(eq("name"), any(ShardingTransactionManagerEngine.class));
+        GovernanceTransactionContexts actual = new GovernanceTransactionContexts(transactionContexts, XATransactionManagerType.ATOMIKOS.getType());
+        assertThat(actual.getEngines(), is(engines));
+        assertThat(actual.getDefaultTransactionManagerEngine(), is(engine));
     }
     
     @Test
-    public void assertDataSourceDeleted() throws Exception {
-        DataSourceDeletedEvent event = new DataSourceDeletedEvent("name");
-        when(transactionContexts.getEngines()).thenReturn(engines);
-        when(engines.remove("name")).thenReturn(engine);
-        new GovernanceTransactionContexts(transactionContexts, XATransactionManagerType.ATOMIKOS.getType()).renew(event);
+    public void assertClose() throws Exception {
+        GovernanceTransactionContexts actual = new GovernanceTransactionContexts(transactionContexts, XATransactionManagerType.ATOMIKOS.getType());
+        actual.close();
+        verify(transactionContexts).close();
+    }
+    
+    @Test
+    public void assertRenew() throws Exception {
+        when(event.getSchemaName()).thenReturn("name");
+        when(transactionContexts.getEngines()).thenReturn(engineMap);
+        when(engineMap.remove(eq("name"))).thenReturn(engine);
+        GovernanceTransactionContexts actual = new GovernanceTransactionContexts(transactionContexts, XATransactionManagerType.ATOMIKOS.getType());
+        actual.renew(event);
         verify(engine).close();
+        verify(engineMap).put(eq("name"), any(ShardingTransactionManagerEngine.class));
     }
 }

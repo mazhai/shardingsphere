@@ -21,8 +21,7 @@ import com.google.common.base.Preconditions;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.authority.yaml.config.YamlAuthorityRuleConfiguration;
-import org.apache.shardingsphere.governance.core.yaml.pojo.YamlGovernanceConfiguration;
-import org.apache.shardingsphere.infra.yaml.config.pojo.YamlRuleConfiguration;
+import org.apache.shardingsphere.infra.yaml.config.YamlRuleConfiguration;
 import org.apache.shardingsphere.infra.yaml.engine.YamlEngine;
 import org.apache.shardingsphere.proxy.config.yaml.YamlProxyRuleConfiguration;
 import org.apache.shardingsphere.proxy.config.yaml.YamlProxyServerConfiguration;
@@ -44,6 +43,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ProxyConfigurationLoader {
     
+    private static final String DEFAULT_DATASOURCE_NAME = "dataSource";
+    
     private static final String SERVER_CONFIG_FILE = "server.yaml";
     
     private static final Pattern RULE_CONFIG_FILE_PATTERN = Pattern.compile("config-.+\\.yaml");
@@ -58,11 +59,9 @@ public final class ProxyConfigurationLoader {
     public static YamlProxyConfiguration load(final String path) throws IOException {
         YamlProxyServerConfiguration serverConfig = loadServerConfiguration(getResourceFile(String.join("/", path, SERVER_CONFIG_FILE)));
         File configPath = getResourceFile(path);
-        Collection<YamlProxyRuleConfiguration> ruleConfigs = loadRuleConfigurations(configPath);
-        // TODO use SPI with pluggable
-        boolean containsGovernance = serverConfig.getRules().stream().anyMatch(each -> each instanceof YamlGovernanceConfiguration);
-        Preconditions.checkState(!ruleConfigs.isEmpty() || containsGovernance, "Can not find any valid rule configurations file in path `%s`.", configPath.getPath());
-        return new YamlProxyConfiguration(serverConfig, ruleConfigs.stream().collect(Collectors.toMap(
+        Collection<YamlProxyRuleConfiguration> ruleConfigurations = loadRuleConfigurations(configPath);
+        Preconditions.checkState(!ruleConfigurations.isEmpty() || null != serverConfig.getGovernance(), "Can not find any valid rule configurations file in path `%s`.", configPath.getPath());
+        return new YamlProxyConfiguration(serverConfig, ruleConfigurations.stream().collect(Collectors.toMap(
                 YamlProxyRuleConfiguration::getSchemaName, each -> each, (oldValue, currentValue) -> oldValue, LinkedHashMap::new)));
     }
     
@@ -74,10 +73,8 @@ public final class ProxyConfigurationLoader {
     private static YamlProxyServerConfiguration loadServerConfiguration(final File yamlFile) throws IOException {
         YamlProxyServerConfiguration result = YamlEngine.unmarshal(yamlFile, YamlProxyServerConfiguration.class);
         Preconditions.checkNotNull(result, "Server configuration file `%s` is invalid.", yamlFile.getName());
-        // TODO use SPI with pluggable
-        boolean containsGovernance = result.getRules().stream().anyMatch(each -> each instanceof YamlGovernanceConfiguration);
         YamlRuleConfiguration authorityRuleConfig = result.getRules().stream().filter(ruleConfig -> ruleConfig instanceof YamlAuthorityRuleConfiguration).findAny().orElse(null);
-        Preconditions.checkState(containsGovernance || null != authorityRuleConfig, "Authority configuration is invalid.");
+        Preconditions.checkState(null != result.getGovernance() || null != authorityRuleConfig, "Authority configuration is invalid.");
         return result;
     }
     
@@ -99,6 +96,9 @@ public final class ProxyConfigurationLoader {
             return Optional.empty();
         }
         Preconditions.checkNotNull(result.getSchemaName(), "Property `schemaName` in file `%s` is required.", yamlFile.getName());
+        if (result.getDataSources().isEmpty() && null != result.getDataSource()) {
+            result.getDataSources().put(DEFAULT_DATASOURCE_NAME, result.getDataSource());
+        }
         Preconditions.checkState(!result.getDataSources().isEmpty(), "Data sources configuration in file `%s` is required.", yamlFile.getName());
         return Optional.of(result);
     }

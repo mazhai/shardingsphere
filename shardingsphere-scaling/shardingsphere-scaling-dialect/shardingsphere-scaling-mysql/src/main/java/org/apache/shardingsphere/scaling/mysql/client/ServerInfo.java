@@ -23,8 +23,8 @@ import lombok.Setter;
 /**
  * MySQL server info.
  */
-@Getter
 @Setter
+@Getter
 public final class ServerInfo {
     
     private ServerVersion serverVersion;

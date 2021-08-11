@@ -27,6 +27,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,14 +49,16 @@ public final class ShardingSphereDistributeLockTest {
     
     @Test
     public void assertTryLock() {
-        when(lockService.tryLock("test", 50L)).thenReturn(Boolean.TRUE);
+        when(lockService.tryLock(eq("test"), eq(50L))).thenReturn(Boolean.TRUE);
         lock.tryLock("test", 50L);
-        verify(lockService).tryLock("test", 50L);
+        verify(lockService).tryLock(eq("test"), eq(50L));
     }
     
     @Test
     public void assertReleaseLock() {
+        when(lockService.checkUnlockAck("test")).thenReturn(Boolean.TRUE);
         lock.releaseLock("test");
-        verify(lockService).releaseLock("test");
+        verify(lockService).checkUnlockAck(eq("test"));
+        verify(lockService).releaseLock(eq("test"));
     }
 }

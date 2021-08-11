@@ -31,8 +31,8 @@ import java.util.List;
 /**
  * Data record.
  */
-@Getter
 @Setter
+@Getter
 @EqualsAndHashCode(of = {"tableName", "primaryKeyValue"}, callSuper = false)
 @ToString
 public final class DataRecord extends Record {

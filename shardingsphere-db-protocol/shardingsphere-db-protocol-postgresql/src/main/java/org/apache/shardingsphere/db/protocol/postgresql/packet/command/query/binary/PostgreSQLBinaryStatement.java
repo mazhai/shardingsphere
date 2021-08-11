@@ -19,7 +19,7 @@ package org.apache.shardingsphere.db.protocol.postgresql.packet.command.query.bi
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.sql.parser.sql.common.statement.SQLStatement;
+import org.apache.shardingsphere.db.protocol.postgresql.constant.PostgreSQLBinaryColumnType;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public final class PostgreSQLBinaryStatement {
     
     private final String sql;
     
-    private final SQLStatement sqlStatement;
+    private final int parameterCount;
     
     private final List<PostgreSQLBinaryColumnType> columnTypes;
 }

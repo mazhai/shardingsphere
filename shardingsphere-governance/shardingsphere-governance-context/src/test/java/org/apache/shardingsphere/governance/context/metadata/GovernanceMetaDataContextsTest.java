@@ -18,8 +18,8 @@
 package org.apache.shardingsphere.governance.context.metadata;
 
 import org.apache.shardingsphere.authority.api.config.AuthorityRuleConfiguration;
-import org.apache.shardingsphere.authority.rule.AuthorityRule;
 import org.apache.shardingsphere.governance.context.authority.listener.event.AuthorityChangedEvent;
+import org.apache.shardingsphere.governance.core.GovernanceFacade;
 import org.apache.shardingsphere.governance.core.registry.RegistryCenter;
 import org.apache.shardingsphere.governance.core.registry.config.event.datasource.DataSourceChangedEvent;
 import org.apache.shardingsphere.governance.core.registry.config.event.props.PropertiesChangedEvent;
@@ -33,20 +33,16 @@ import org.apache.shardingsphere.governance.core.schema.GovernanceSchema;
 import org.apache.shardingsphere.infra.config.RuleConfiguration;
 import org.apache.shardingsphere.infra.config.algorithm.ShardingSphereAlgorithmConfiguration;
 import org.apache.shardingsphere.infra.config.datasource.DataSourceConfiguration;
-import org.apache.shardingsphere.infra.database.DefaultSchema;
-import org.apache.shardingsphere.infra.persist.DistMetaDataPersistService;
 import org.apache.shardingsphere.infra.config.properties.ConfigurationProperties;
 import org.apache.shardingsphere.infra.config.properties.ConfigurationPropertyKey;
 import org.apache.shardingsphere.infra.context.metadata.impl.StandardMetaDataContexts;
+import org.apache.shardingsphere.infra.database.type.dialect.MySQLDatabaseType;
 import org.apache.shardingsphere.infra.executor.kernel.ExecutorEngine;
 import org.apache.shardingsphere.infra.metadata.ShardingSphereMetaData;
 import org.apache.shardingsphere.infra.metadata.resource.ShardingSphereResource;
 import org.apache.shardingsphere.infra.metadata.rule.ShardingSphereRuleMetaData;
 import org.apache.shardingsphere.infra.metadata.schema.ShardingSphereSchema;
 import org.apache.shardingsphere.infra.metadata.user.ShardingSphereUser;
-import org.apache.shardingsphere.infra.optimize.context.OptimizeContextFactory;
-import org.apache.shardingsphere.infra.optimize.core.metadata.FederateSchemaMetadatas;
-import org.apache.shardingsphere.infra.rule.ShardingSphereRule;
 import org.apache.shardingsphere.test.mock.MockedDataSource;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,7 +57,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -79,8 +74,8 @@ public final class GovernanceMetaDataContextsTest {
     
     private final ConfigurationProperties props = new ConfigurationProperties(new Properties());
     
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private DistMetaDataPersistService distMetaDataPersistService;
+    @Mock
+    private GovernanceFacade governanceFacade;
     
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private RegistryCenter registryCenter;
@@ -92,29 +87,25 @@ public final class GovernanceMetaDataContextsTest {
     
     @Mock
     private ShardingSphereRuleMetaData globalRuleMetaData;
-    
+
     @Before
     public void setUp() {
-        governanceMetaDataContexts = new GovernanceMetaDataContexts(new StandardMetaDataContexts(mock(DistMetaDataPersistService.class), 
-                createMetaDataMap(), globalRuleMetaData, mock(ExecutorEngine.class), props, mockOptimizeContextFactory()), distMetaDataPersistService, registryCenter);
+        when(governanceFacade.getRegistryCenter()).thenReturn(registryCenter);
+        when(registryCenter.getDataSourceStatusService().loadDisabledDataSources("schema")).thenReturn(Collections.singletonList("schema.ds_1"));
+        governanceMetaDataContexts = new GovernanceMetaDataContexts(new StandardMetaDataContexts(
+                createMetaDataMap(), globalRuleMetaData, mock(ExecutorEngine.class), props), governanceFacade);
     }
     
     private Map<String, ShardingSphereMetaData> createMetaDataMap() {
         when(metaData.getName()).thenReturn("schema");
         ShardingSphereResource resource = mock(ShardingSphereResource.class);
+        when(resource.getDatabaseType()).thenReturn(new MySQLDatabaseType());
         when(metaData.getResource()).thenReturn(resource);
         when(metaData.getSchema()).thenReturn(mock(ShardingSphereSchema.class));
         when(metaData.getRuleMetaData().getRules()).thenReturn(Collections.emptyList());
-        when(metaData.getRuleMetaData().getConfigurations()).thenReturn(Collections.emptyList());
         return Collections.singletonMap("schema", metaData);
     }
-
-    private OptimizeContextFactory mockOptimizeContextFactory() {
-        OptimizeContextFactory result = mock(OptimizeContextFactory.class);
-        when(result.getSchemaMetadatas()).thenReturn(new FederateSchemaMetadatas(Collections.emptyMap()));
-        return result;
-    }
-
+    
     @Test
     public void assertGetMetaData() {
         assertThat(governanceMetaDataContexts.getMetaData("schema"), is(metaData));
@@ -122,7 +113,7 @@ public final class GovernanceMetaDataContextsTest {
     
     @Test
     public void assertGetDefaultMetaData() {
-        assertNull(governanceMetaDataContexts.getMetaData(DefaultSchema.LOGIC_NAME));
+        assertNull(governanceMetaDataContexts.getDefaultMetaData());
     }
     
     @Test
@@ -133,8 +124,7 @@ public final class GovernanceMetaDataContextsTest {
     @Test
     public void assertSchemaAdd() throws SQLException {
         SchemaAddedEvent event = new SchemaAddedEvent("schema_add");
-        when(distMetaDataPersistService.getDataSourceService().load("schema_add")).thenReturn(getDataSourceConfigurations());
-        when(distMetaDataPersistService.getSchemaRuleService().load("schema_add")).thenReturn(Collections.emptyList());
+        when(registryCenter.getDataSourceService().load("schema_add")).thenReturn(getDataSourceConfigurations());
         governanceMetaDataContexts.renew(event);
         assertNotNull(governanceMetaDataContexts.getMetaData("schema_add"));
         assertNotNull(governanceMetaDataContexts.getMetaData("schema_add").getResource().getDataSources());
@@ -209,7 +199,7 @@ public final class GovernanceMetaDataContextsTest {
         result.put("ds_2", DataSourceConfiguration.getDataSourceConfiguration(dataSource));
         return result;
     }
-    
+
     @Test
     public void assertGlobalRuleConfigurationsChanged() {
         GlobalRuleConfigurationsChangedEvent event = new GlobalRuleConfigurationsChangedEvent(getChangedGlobalRuleConfigurations());
@@ -231,18 +221,14 @@ public final class GovernanceMetaDataContextsTest {
     
     @Test
     public void assertAuthorityChanged() {
-        when(governanceMetaDataContexts.getGlobalRuleMetaData().getRules()).thenReturn(createAuthorityRule());
+        when(globalRuleMetaData.getConfigurations()).thenReturn(createGlobalRuleConfiguration());
         AuthorityChangedEvent event = new AuthorityChangedEvent(getShardingSphereUsers());
         governanceMetaDataContexts.renew(event);
-        Optional<AuthorityRule> authorityRule = governanceMetaDataContexts.getGlobalRuleMetaData().getRules()
-                .stream().filter(each -> each instanceof AuthorityRule).findAny().map(each -> (AuthorityRule) each);
-        assertTrue(authorityRule.isPresent());
-        assertNotNull(authorityRule.get().findUser(new ShardingSphereUser("root", "root", "%").getGrantee()));
+        assertThat(governanceMetaDataContexts.getGlobalRuleMetaData(), not(globalRuleMetaData));
     }
     
-    private Collection<ShardingSphereRule> createAuthorityRule() {
-        AuthorityRuleConfiguration ruleConfig = new AuthorityRuleConfiguration(Collections.emptyList(), new ShardingSphereAlgorithmConfiguration("ALL_PRIVILEGES_PERMITTED", new Properties()));
-        AuthorityRule authorityRule = new AuthorityRule(ruleConfig, governanceMetaDataContexts.getMetaDataMap(), Collections.emptyList());
-        return Collections.singleton(authorityRule);
+    private Collection<RuleConfiguration> createGlobalRuleConfiguration() {
+        RuleConfiguration ruleConfig = new AuthorityRuleConfiguration(Collections.emptyList(), new ShardingSphereAlgorithmConfiguration("NATIVE", new Properties()));
+        return Collections.singleton(ruleConfig);
     }
 }

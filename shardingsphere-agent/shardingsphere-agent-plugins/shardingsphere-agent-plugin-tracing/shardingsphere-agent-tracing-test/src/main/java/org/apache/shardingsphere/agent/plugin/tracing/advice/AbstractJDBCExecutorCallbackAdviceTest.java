@@ -17,6 +17,8 @@
 
 package org.apache.shardingsphere.agent.plugin.tracing.advice;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.shardingsphere.agent.api.advice.AdviceTargetObject;
@@ -33,8 +35,6 @@ import org.mockito.internal.util.reflection.FieldReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Statement;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.Mockito.mock;
@@ -54,18 +54,18 @@ public abstract class AbstractJDBCExecutorCallbackAdviceTest implements AdviceTe
     @Getter
     private Map<String, Object> extraMap;
     
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @SneakyThrows
+    @SuppressWarnings("all")
     @Override
     public void prepare() {
-        extraMap = new HashMap<>();
+        extraMap = Maps.newHashMap();
         Statement statement = mock(Statement.class);
         Connection connection = mock(Connection.class);
         DatabaseMetaData metaData = mock(DatabaseMetaData.class);
         when(metaData.getURL()).thenReturn("mock_url");
         when(connection.getMetaData()).thenReturn(metaData);
         when(statement.getConnection()).thenReturn(connection);
-        executionUnit = new JDBCExecutionUnit(new ExecutionUnit("mock.db", new SQLUnit("select 1", Collections.emptyList())), null, statement);
+        executionUnit = new JDBCExecutionUnit(new ExecutionUnit("mock.db", new SQLUnit("select 1", Lists.newArrayList())), null, statement);
         JDBCExecutorCallback mock = mock(JDBCExecutorCallback.class, invocation -> {
             switch (invocation.getMethod().getName()) {
                 case "getAttachment":

@@ -37,10 +37,8 @@ public final class ShardingGeneratedKeyInsertValueParameterRewriter implements P
     
     @Override
     public boolean isNeedRewrite(final SQLStatementContext sqlStatementContext) {
-        return sqlStatementContext instanceof InsertStatementContext
-                && ((InsertStatementContext) sqlStatementContext).getGeneratedKeyContext().isPresent()
-                && ((InsertStatementContext) sqlStatementContext).getGeneratedKeyContext().get().isGenerated()
-                && !((InsertStatementContext) sqlStatementContext).getGeneratedKeyContext().get().getGeneratedValues().isEmpty();
+        return sqlStatementContext instanceof InsertStatementContext 
+                && ((InsertStatementContext) sqlStatementContext).getGeneratedKeyContext().isPresent() && ((InsertStatementContext) sqlStatementContext).getGeneratedKeyContext().get().isGenerated();
     }
     
     @Override

@@ -25,11 +25,16 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 public final class RuleConfigurationCheckerFactoryTest {
-    
+
+    private TestRuleConfiguration testRuleConfiguration() {
+        return new TestRuleConfiguration();
+    }
+
     @Test
-    public void assertNewInstance() {
-        RuleConfigurationChecker<?> checker = RuleConfigurationCheckerFactory.newInstance(new TestRuleConfiguration());
+    public void testNewInstance() {
+        RuleConfigurationChecker checker = RuleConfigurationCheckerFactory.newInstance(testRuleConfiguration());
         assertNotNull(checker);
         assertTrue(checker instanceof RuleConfigurationCheckerFixture);
     }
+
 }

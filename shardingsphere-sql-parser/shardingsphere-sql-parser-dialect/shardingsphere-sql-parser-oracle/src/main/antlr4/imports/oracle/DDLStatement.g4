@@ -59,6 +59,10 @@ tablespaceClause
     : TABLESPACE ignoredIdentifier
     ;
 
+domainIndexClause
+    : indexTypeName
+    ;
+
 createSharingClause
     : (SHARING EQ_ (METADATA | DATA | EXTENDED DATA | NONE))?
     ;
@@ -1444,6 +1448,10 @@ startStandbyClause
     : START LOGICAL STANDBY APPLY IMMEDIATE? NODELAY? (NEW PRIMARY dbLink | INITIAL scnValue? | (SKIP_SYMBOL FAILED TRANSACTION | FINISH))?
     ;
 
+scnValue
+    : literals
+    ;
+
 stopStandbyClause
     : (STOP | ABORT) LOGICAL STANDBY APPLY
     ;
@@ -1785,121 +1793,4 @@ containerCurrentAllClause
 
 scopeClause
     : SCOPE EQ_ (MEMORY | SPFILE | BOTH) | SID EQ_ (SQ_ sessionId SQ_ | SQ_ ASTERISK_ SQ_)
-    ;
-
-analyze
-    : (ANALYZE ((TABLE tableName| INDEX indexName) partitionExtensionClause? | CLUSTER clusterName))
-    (validationClauses | LIST CHAINED ROWS intoClause? | DELETE SYSTEM? STATISTICS)
-    ;
-
-partitionExtensionClause
-    : PARTITION (LP_ partitionName RP_ | FOR LP_ partitionKeyValue (COMMA_ partitionKeyValue) RP_)
-    | SUBPARTITION (LP_ subpartitionName RP_ | FOR LP_ subpartitionKeyValue (COMMA_ subpartitionKeyValue) RP_)
-    ;
-
-validationClauses
-    : VALIDATE REF UPDATE (SET DANGLING TO NULL)?
-    | VALIDATE STRUCTURE (CASCADE (FAST | COMPLETE (OFFLINE | ONLINE) intoClause?))?
-    ;
-
-intoClause
-    : INTO tableName
-    ;
-
-associateStatistics
-    : ASSOCIATE STATISTICS WITH (columnAssociation | functionAssociation) storageTableClause?
-    ;
-
-columnAssociation
-    : COLUMNS tableName DOT_ columnName (COMMA_ tableName DOT_ columnName)* usingStatisticsType
-    ;
-
-functionAssociation
-    : (FUNCTIONS function (COMMA_ function)*
-    | PACKAGES packageName (COMMA_ packageName)*
-    | TYPES typeName (COMMA_ typeName)*
-    | INDEXES indexName (COMMA_ indexName)*
-    | INDEXTYPES indexTypeName (COMMA_ indexTypeName)*) 
-    (usingStatisticsType | defaultCostClause (COMMA_ defaultSelectivityClause)? | defaultSelectivityClause (COMMA_ defaultCostClause)?)
-    ;
-
-storageTableClause
-    : WITH (SYSTEM | USER) MANAGED STORAGE TABLES
-    ;
-
-usingStatisticsType
-    : USING (statisticsTypeName | NULL)
-    ;
-
-defaultCostClause
-    : DEFAULT COST LP_ cpuCost COMMA_ ioCost COMMA_ networkCost RP_
-    ;
-
-defaultSelectivityClause
-    : DEFAULT SELECTIVITY defaultSelectivity
-    ;
-
-disassociateStatistics
-    : DISASSOCIATE STATISTICS FROM 
-    (COLUMNS tableName DOT_ columnName (COMMA_ tableName DOT_ columnName)*
-    | FUNCTIONS function (COMMA_ function)*
-    | PACKAGES packageName (COMMA_ packageName)*
-    | TYPES typeName (COMMA_ typeName)*
-    | INDEXES indexName (COMMA_ indexName)*
-    | INDEXTYPES indexTypeName (COMMA_ indexTypeName)*) FORCE?
-    ;
-
-audit
-    : AUDIT (auditPolicyClause | contextClause)
-    ;
-
-noAudit
-    : NOAUDIT (noAuditPolicyClause | contextClause)
-    ;
-
-auditPolicyClause
-    : POLICY policyName (byUsersWithRoles | (BY | EXCEPT) userName (COMMA_ userName)*)? (WHENEVER NOT? SUCCESSFUL)?
-    ;
-
-noAuditPolicyClause
-    : POLICY policyName (byUsersWithRoles | BY userName (COMMA_ userName)*)? (WHENEVER NOT? SUCCESSFUL)?
-    ;
-
-byUsersWithRoles
-    : BY USERS WITH GRANTED ROLES roleName (COMMA_ roleName)*
-    ;
-
-contextClause
-    : contextNamespaceAttributesClause (COMMA_ contextNamespaceAttributesClause)* (BY userName (COMMA_ userName)*)?
-    ;
-
-contextNamespaceAttributesClause
-    : CONTEXT NAMESPACE namespace ATTRIBUTES attributeName (COMMA_ attributeName)*
-    ;
-
-comment
-    : COMMENT ON (
-    | AUDIT POLICY policyName
-    | COLUMN (tableName | viewName | materializedViewName) DOT_ columnName
-    | EDITION editionName
-    | INDEXTYPE indexTypeName
-    | MATERIALIZED VIEW materializedViewName
-    | MINING MODEL modelName
-    | OPERATOR operatorName
-    | TABLE (tableName | viewName)
-    ) IS STRING_
-    ;
-
-flashbackDatabase
-    : FLASHBACK STANDBY? PLUGGABLE? DATABASE databaseName?
-    ( TO (scnTimestampClause | restorePointClause) 
-    | TO BEFORE (scnTimestampClause | RESETLOGS))
-    ;
-
-scnTimestampClause
-    : (SCN | TIMESTAMP) scnTimestampExpr
-    ;
-
-restorePointClause
-    : RESTORE POINT restorePoint
     ;

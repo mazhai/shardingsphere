@@ -19,13 +19,24 @@ package org.apache.shardingsphere.proxy.backend.text.distsql.ral;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.shardingsphere.distsql.parser.statement.ral.QueryableRALStatement;
-import org.apache.shardingsphere.distsql.parser.statement.ral.RALStatement;
-import org.apache.shardingsphere.distsql.parser.statement.ral.UpdatableRALStatement;
-import org.apache.shardingsphere.proxy.backend.communication.jdbc.connection.BackendConnection;
+import org.apache.shardingsphere.distsql.parser.statement.ral.impl.CheckScalingJobStatement;
+import org.apache.shardingsphere.distsql.parser.statement.ral.impl.DropScalingJobStatement;
+import org.apache.shardingsphere.distsql.parser.statement.ral.impl.ResetScalingJobStatement;
+import org.apache.shardingsphere.distsql.parser.statement.ral.impl.ShowScalingJobListStatement;
+import org.apache.shardingsphere.distsql.parser.statement.ral.impl.ShowScalingJobStatusStatement;
+import org.apache.shardingsphere.distsql.parser.statement.ral.impl.StartScalingJobStatement;
+import org.apache.shardingsphere.distsql.parser.statement.ral.impl.StopScalingJobStatement;
 import org.apache.shardingsphere.proxy.backend.text.TextProtocolBackendHandler;
-import org.apache.shardingsphere.proxy.backend.text.distsql.ral.query.QueryableRALBackendHandlerFactory;
-import org.apache.shardingsphere.proxy.backend.text.distsql.ral.update.UpdatableRALBackendHandlerFactory;
+import org.apache.shardingsphere.proxy.backend.text.distsql.ral.impl.CheckScalingJobBackendHandler;
+import org.apache.shardingsphere.proxy.backend.text.distsql.ral.impl.DropScalingJobBackendHandler;
+import org.apache.shardingsphere.proxy.backend.text.distsql.ral.impl.ResetScalingJobBackendHandler;
+import org.apache.shardingsphere.proxy.backend.text.distsql.ral.impl.ShowScalingJobListBackendHandler;
+import org.apache.shardingsphere.proxy.backend.text.distsql.ral.impl.ShowScalingJobStatusBackendHandler;
+import org.apache.shardingsphere.proxy.backend.text.distsql.ral.impl.StartScalingJobBackendHandler;
+import org.apache.shardingsphere.proxy.backend.text.distsql.ral.impl.StopScalingJobBackendHandler;
+import org.apache.shardingsphere.sql.parser.sql.common.statement.SQLStatement;
+
+import java.util.Optional;
 
 /**
  * RAL backend handler factory.
@@ -36,17 +47,31 @@ public final class RALBackendHandlerFactory {
     /**
      * Create new instance of RAL backend handler.
      *
-     * @param sqlStatement RAL statement
-     * @param backendConnection backend connection
+     * @param sqlStatement SQL statement
      * @return RAL backend handler
      */
-    public static TextProtocolBackendHandler newInstance(final RALStatement sqlStatement, final BackendConnection backendConnection) {
-        if (sqlStatement instanceof QueryableRALStatement) {
-            return QueryableRALBackendHandlerFactory.newInstance((QueryableRALStatement) sqlStatement, backendConnection);
+    public static Optional<TextProtocolBackendHandler> newInstance(final SQLStatement sqlStatement) {
+        if (sqlStatement instanceof ShowScalingJobListStatement) {
+            return Optional.of(new ShowScalingJobListBackendHandler());
         }
-        if (sqlStatement instanceof UpdatableRALStatement) {
-            return UpdatableRALBackendHandlerFactory.newInstance((UpdatableRALStatement) sqlStatement);
+        if (sqlStatement instanceof ShowScalingJobStatusStatement) {
+            return Optional.of(new ShowScalingJobStatusBackendHandler((ShowScalingJobStatusStatement) sqlStatement));
         }
-        throw new UnsupportedOperationException(sqlStatement.getClass().getCanonicalName());
+        if (sqlStatement instanceof StartScalingJobStatement) {
+            return Optional.of(new StartScalingJobBackendHandler((StartScalingJobStatement) sqlStatement));
+        }
+        if (sqlStatement instanceof StopScalingJobStatement) {
+            return Optional.of(new StopScalingJobBackendHandler((StopScalingJobStatement) sqlStatement));
+        }
+        if (sqlStatement instanceof DropScalingJobStatement) {
+            return Optional.of(new DropScalingJobBackendHandler((DropScalingJobStatement) sqlStatement));
+        }
+        if (sqlStatement instanceof ResetScalingJobStatement) {
+            return Optional.of(new ResetScalingJobBackendHandler((ResetScalingJobStatement) sqlStatement));
+        }
+        if (sqlStatement instanceof CheckScalingJobStatement) {
+            return Optional.of(new CheckScalingJobBackendHandler((CheckScalingJobStatement) sqlStatement));
+        }
+        return Optional.empty();
     }
 }

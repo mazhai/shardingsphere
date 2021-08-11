@@ -40,16 +40,14 @@ public final class GovernanceContainerCompose extends ContainerCompose {
     private final ShardingSphereAdapterContainer adapterContainer;
 
     private final ShardingSphereAdapterContainer adapterContainerForReader;
-
-    private final ZookeeperContainer zookeeperContainer;
     
     public GovernanceContainerCompose(final String clusterName, final ParameterizedArray parameterizedArray) {
         super(clusterName, parameterizedArray);
         this.storageContainer = createStorageContainer();
         this.adapterContainer = createAdapterContainer();
-        this.storageContainer.setNetworkAliases(Collections.singletonList(parameterizedArray.getDatabaseType().getName().toLowerCase() + ".sharding_governance.host"));
+        this.storageContainer.setNetworkAliases(Collections.singletonList("mysql.sharding-governance.host"));
         // TODO support other types of governance
-        zookeeperContainer = createZookeeperContainer();
+        ZookeeperContainer zookeeperContainer = createZookeeperContainer();
         if ("proxy".equals(parameterizedArray.getAdapter())) {
             adapterContainerForReader = createContainer(() -> new ShardingSphereProxyContainer("ShardingSphere-Proxy-1", parameterizedArray), "ShardingSphere-Proxy-1");
             adapterContainerForReader.dependsOn(storageContainer, zookeeperContainer);
@@ -66,10 +64,9 @@ public final class GovernanceContainerCompose extends ContainerCompose {
     
     @Override
     public Map<String, DataSource> getDataSourceMap() {
-        Map<String, DataSource> result = new HashMap<>(2, 1);
-        String serverLists = zookeeperContainer.getServerLists();
-        result.put("adapterForWriter", adapterContainer.getGovernanceDataSource(serverLists));
-        result.put("adapterForReader", adapterContainerForReader.getGovernanceDataSource(serverLists));
+        Map<String, DataSource> result = new HashMap<>(2);
+        result.put("adapterForWriter", adapterContainer.getDataSource());
+        result.put("adapterForReader", adapterContainerForReader.getDataSource());
         return result;
     }
 }

@@ -29,7 +29,6 @@ chapter = true
 | OracleRecognizer        |  Use Oracle JDBC driver to execute SQL     |
 | SQLServerRecognizer     |  Use SQLServer JDBC driver to execute SQL  |
 | H2Recognizer            |  Use H2 JDBC driver to execute SQL         |
-| P6SpyDriverRecognizer   |  Use P6Spy JDBC driver to execute SQL      |
 
 ## AuthorityProvideAlgorithm
 
@@ -37,8 +36,7 @@ chapter = true
 | ------------------------------- | ------------------------------ |
 | AuthorityProvideAlgorithm       | User authority loading logic   |
 
-| *Implementation Class*                                | *Type*                      | *Description*                                                                                                          |
-| ----------------------------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| NativeAuthorityProviderAlgorithm                      | NATIVE                      | Persist user authority defined in server.yaml into the backend database. An admin user will be created if not existed. |
-| AllPrivilegesPermittedAuthorityProviderAlgorithm      | ALL_PRIVILEGES_PERMITTED    | All privileges granted to user by default (No authentication). Will not interact with the actual database.             |
-| SchemaPrivilegesPermittedAuthorityProviderAlgorithm   | SCHEMA_PRIVILEGES_PERMITTED | Permissions configured through the attribute user-schema-mappings.                                                     |
+| *Implementation Class*                             | *Type*                   | *Description*                                                                                                          |
+| -------------------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| NativeAuthorityProviderAlgorithm                   | NATIVE                   | Persist user authority defined in server.yaml into the backend database. An admin user will be created if not existed. |
+| AllPrivilegesPermittedAuthorityProviderAlgorithm   | ALL_PRIVILEGES_PERMITTED | All privileges granted to user by default (No authentication). Will not interact with the actual database.             |

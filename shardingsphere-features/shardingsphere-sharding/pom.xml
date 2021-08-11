@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.shardingsphere</groupId>
         <artifactId>shardingsphere-features</artifactId>
-        <version>5.0.0-RC1-SNAPSHOT</version>
+        <version>5.0.0-beta</version>
     </parent>
     <artifactId>shardingsphere-sharding</artifactId>
     <name>${project.artifactId}</name>
@@ -30,7 +30,6 @@
     <modules>
         <module>shardingsphere-sharding-api</module>
         <module>shardingsphere-sharding-core</module>
-        <module>shardingsphere-sharding-distsql</module>
         <module>shardingsphere-sharding-spring</module>
     </modules>
 </project>

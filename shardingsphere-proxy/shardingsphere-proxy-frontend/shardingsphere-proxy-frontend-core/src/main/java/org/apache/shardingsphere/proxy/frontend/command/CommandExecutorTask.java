@@ -25,7 +25,6 @@ import org.apache.shardingsphere.db.protocol.packet.CommandPacket;
 import org.apache.shardingsphere.db.protocol.packet.CommandPacketType;
 import org.apache.shardingsphere.db.protocol.packet.DatabasePacket;
 import org.apache.shardingsphere.db.protocol.payload.PacketPayload;
-import org.apache.shardingsphere.proxy.backend.communication.SQLStatementSchemaHolder;
 import org.apache.shardingsphere.proxy.backend.communication.jdbc.connection.BackendConnection;
 import org.apache.shardingsphere.proxy.backend.communication.jdbc.connection.ConnectionStatus;
 import org.apache.shardingsphere.proxy.frontend.command.executor.CommandExecutor;
@@ -75,14 +74,11 @@ public final class CommandExecutorTask implements Runnable {
             // CHECKSTYLE:ON
             processException(ex);
         } finally {
-            // TODO optimize SQLStatementSchemaHolder
-            SQLStatementSchemaHolder.remove();
             Collection<SQLException> exceptions = closeExecutionResources();
             if (isNeedFlush) {
                 context.flush();
             }
             if (!backendConnection.getTransactionStatus().isInConnectionHeldTransaction()) {
-                exceptions.addAll(backendConnection.closeDatabaseCommunicationEngines(true));
                 exceptions.addAll(backendConnection.closeConnections(false));
             }
             processClosedExceptions(exceptions);
@@ -94,17 +90,13 @@ public final class CommandExecutorTask implements Runnable {
         CommandPacketType type = commandExecuteEngine.getCommandPacketType(payload);
         CommandPacket commandPacket = commandExecuteEngine.getCommandPacket(payload, type, backendConnection);
         CommandExecutor commandExecutor = commandExecuteEngine.getCommandExecutor(type, commandPacket, backendConnection);
-        try {
-            Collection<DatabasePacket<?>> responsePackets = commandExecutor.execute();
-            if (responsePackets.isEmpty()) {
-                return false;
-            }
-            responsePackets.forEach(context::write);
-            if (commandExecutor instanceof QueryCommandExecutor) {
-                return commandExecuteEngine.writeQueryData(context, backendConnection, (QueryCommandExecutor) commandExecutor, responsePackets.size());
-            }
-        } finally {
-            commandExecutor.close();
+        Collection<DatabasePacket<?>> responsePackets = commandExecutor.execute();
+        if (responsePackets.isEmpty()) {
+            return false;
+        }
+        responsePackets.forEach(context::write);
+        if (commandExecutor instanceof QueryCommandExecutor) {
+            return commandExecuteEngine.writeQueryData(context, backendConnection, (QueryCommandExecutor) commandExecutor, responsePackets.size());
         }
         return databaseProtocolFrontendEngine.getFrontendContext().isFlushForPerCommandPacket();
     }
@@ -121,7 +113,8 @@ public final class CommandExecutorTask implements Runnable {
     private Collection<SQLException> closeExecutionResources() {
         Collection<SQLException> result = new LinkedList<>();
         PrimaryVisitedManager.clear();
-        result.addAll(backendConnection.closeDatabaseCommunicationEngines(false));
+        result.addAll(backendConnection.closeResultSets());
+        result.addAll(backendConnection.closeStatements());
         result.addAll(backendConnection.closeFederateExecutor());
         return result;
     }

@@ -17,36 +17,27 @@
 
 package org.apache.shardingsphere.shadow.spring.namespace;
 
-import org.apache.shardingsphere.shadow.algorithm.config.AlgorithmProvidedShadowRuleConfiguration;
+import org.apache.shardingsphere.shadow.api.config.ShadowRuleConfiguration;
 import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration(locations = "classpath:META-INF/spring/shadow-application-context.xml")
 public final class ShadowSpringNamespaceTest extends AbstractJUnit4SpringContextTests {
     
     @Resource
-    private AlgorithmProvidedShadowRuleConfiguration shadowRule;
+    private ShadowRuleConfiguration shadowRule;
     
     @Test
     public void assertDataSource() {
-        assertBasicShadowRule(shadowRule.getColumn(), shadowRule.getSourceDataSourceNames(), shadowRule.getShadowDataSourceNames());
-        assertTrue(shadowRule.getDataSources().isEmpty());
-        assertTrue(shadowRule.getShadowTables().isEmpty());
-        assertTrue(shadowRule.getShadowAlgorithms().isEmpty());
-    }
-    
-    private void assertBasicShadowRule(final String column, final List<String> sourceDataSourceNames, final List<String> shadowDataSourceNames) {
-        assertThat(column, is("shadow"));
-        assertThat(sourceDataSourceNames, is(Arrays.asList("ds", "ds1")));
-        assertThat(shadowDataSourceNames, is(Arrays.asList("shadow_ds", "shadow_ds1")));
+        assertThat(shadowRule.getColumn(), is("shadow"));
+        assertThat(shadowRule.getSourceDataSourceNames(), is(Arrays.asList("ds", "ds1")));
+        assertThat(shadowRule.getShadowDataSourceNames(), is(Arrays.asList("shadow_ds", "shadow_ds1")));
     }
 }

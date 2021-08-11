@@ -338,6 +338,7 @@ dataSources:
     maxLifetimeMilliseconds: 1800000
     maxPoolSize: 256
     minPoolSize: 256
+    maintenanceIntervalMilliseconds: 30000
   ds_1:
     url: jdbc:mysql://${host-mysql-2}:3306/sbtest?serverTimezone=UTC&useSSL=false
     username: root
@@ -347,6 +348,7 @@ dataSources:
     maxLifetimeMilliseconds: 1800000
     maxPoolSize: 256
     minPoolSize: 256
+    maintenanceIntervalMilliseconds: 30000
 
 rules:
 - !SHARDING
@@ -514,6 +516,7 @@ dataSources:
     maxLifetimeMilliseconds: 1800000
     maxPoolSize: 128
     minPoolSize: 128
+    maintenanceIntervalMilliseconds: 30000
 
 rules:
 - !READWRITE_SPLITTING
@@ -540,6 +543,7 @@ dataSources:
     maxLifetimeMilliseconds: 1800000
     maxPoolSize: 256
     minPoolSize: 256
+    maintenanceIntervalMilliseconds: 30000
   primary_ds_1:
     url: jdbc:mysql://${host-mysql-2}:3306/sbtest?serverTimezone=UTC&useSSL=false
     username: root
@@ -549,6 +553,7 @@ dataSources:
     maxLifetimeMilliseconds: 1800000
     maxPoolSize: 256
     minPoolSize: 256
+    maintenanceIntervalMilliseconds: 30000
 
 rules:
 - !SHARDING
@@ -730,6 +735,7 @@ dataSources:
     maxLifetimeMilliseconds: 1800000
     maxPoolSize: 256
     minPoolSize: 256
+    maintenanceIntervalMilliseconds: 30000
 
 rules:
 - !ENCRYPT
