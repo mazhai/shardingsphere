@@ -41,11 +41,11 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 @RequiredArgsConstructor
 public final class SingleTablesRoutingEngine implements ShardingRouteEngine {
-    
+
     private final Collection<String> logicTables;
-    
+
     private final SQLStatement sqlStatement;
-    
+
     @Override
     public void route(final RouteContext routeContext, final ShardingRule shardingRule) {
         if (isDDLTableStatement() || shardingRule.isAllTablesInSameDataSource(logicTables)) {
@@ -62,20 +62,23 @@ public final class SingleTablesRoutingEngine implements ShardingRouteEngine {
             }
         }
     }
-    
+
     private boolean isDDLTableStatement() {
         return sqlStatement instanceof CreateTableStatement || sqlStatement instanceof AlterTableStatement || sqlStatement instanceof DropTableStatement;
     }
-    
+
     private RouteUnit getRandomRouteUnit(final ShardingRule shardingRule) {
         Collection<String> dataSourceNames = shardingRule.getDataSourceNames();
         String dataSource = Lists.newArrayList(dataSourceNames).get(ThreadLocalRandom.current().nextInt(dataSourceNames.size()));
         String table = logicTables.iterator().next();
         return new RouteUnit(new RouteMapper(dataSource, dataSource), Collections.singleton(new RouteMapper(table, table)));
     }
-    
+
     private void fillRouteContext(final ShardingRule shardingRule, final RouteContext routeContext, final Collection<String> logicTables) {
         for (String each : logicTables) {
+            if (ShardingRouteEngine.isSystemTable(each)){
+                continue;
+            }
             if (!shardingRule.getSingleTableRules().containsKey(each)) {
                 throw new ShardingSphereException("`%s` single table does not exist.", each);
             }

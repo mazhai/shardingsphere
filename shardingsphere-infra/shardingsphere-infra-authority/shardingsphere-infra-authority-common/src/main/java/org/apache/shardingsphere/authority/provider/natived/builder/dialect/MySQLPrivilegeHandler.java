@@ -271,9 +271,9 @@ public final class MySQLPrivilegeHandler implements StoragePrivilegeHandler {
     }
 
     private void addToPrivilegeTypesIfPresent(final boolean hasPrivilege, final PrivilegeType privilegeType, final Collection<PrivilegeType> target) {
-//        if (hasPrivilege) {
-        target.add(privilegeType);
-//        }
+        if (hasPrivilege) {
+            target.add(privilegeType);
+        }
     }
 
     @Override
